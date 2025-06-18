@@ -1,0 +1,10 @@
+# Core dependencies
+PyYAML
+python-dotenv
+rich
+llama-cpp-python
+
+# Dev & Utilities
+pip-tools
+black
+pytest
