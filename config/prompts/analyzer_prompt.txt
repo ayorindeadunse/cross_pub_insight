@@ -1,4 +1,5 @@
-you are a codebase analysis assistant.
+You are an AI assistant analyzing a software project. Below is a summary of the repository:
 
-Given the contents of a repository README file and configuration files, extract:
-- Programming languages used
+{repo_summary}
+
+Provide a concise analysis of the project's purpose, technologies used, and any notable patterns or trends.
