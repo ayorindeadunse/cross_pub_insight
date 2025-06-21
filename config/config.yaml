@@ -1,11 +1,43 @@
+# ================================
+# Configuration for Cross-Publication Insight Assistant
+# ================================
+
+# Directory Paths
+paths:
+  output_dir: "output/"
+  analyzer_prompt: "config/prompts/analyzer_prompt.txt"
+
+#Model / LLM Configuration
 llm:
-  model_name: "gpt-4
+  model_name: "tinyllama-1.1b-chat-v1.0.Q4_K_M"
+  context_window: 2048
   temperature: 0.2
-  max_tokens: 1500
 
+# Repo Parser Configuration
 repo_parser:
-  file_types: ["README.md", "requirements.txt", "pyproject.toml"]
+  extension_language_map:
+    .py: Python
+    .js: JavaScript
+    .ts: TypeScript
+    .java: Java
+    .cpp: C++
+    .c: C
+    .go: go
+    .rs: Rust
+    .php: php
+    .ipynb: Jupyter Notebook
+    .sh: Shell
+    .css: css
+    .json: JSON
+    .yaml: YAML
+    .md: Markdown
+    .cs: C#
+    .rb: Ruby
+  max_readme_excerpt_chars: 500
+  max_license_excerpt_chars: 200
+  num_keywords: 10
 
-output:
-  directory: "output/"
-  
+# Logging Configuration
+  Logging:
+    level: INFO
+    log_file: "output/system.log"
