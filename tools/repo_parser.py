@@ -43,7 +43,8 @@ def extract_keywords(text: str) -> list:
     Native keyword extraction: returns most frequent non-trivial words.
     """
     words = re.findall(r'\b\w+\b', text.lower())
-    common_words = {"the", "and", "for", "with", "this", "that", "from", "are"}
+    common_words = {"the", "and", "for", "with", "this", "that", "from", "are" "of" 
+                    "to", "in", "is", "it", "on", "as", "by", "an", "be", "at", "or"}
     keywords = [word for word in words if word not in common_words and len(word) > 3]
     freq = {}
     for word in keywords:
