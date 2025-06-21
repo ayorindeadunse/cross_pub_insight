@@ -40,4 +40,4 @@ repo_parser:
 # Logging Configuration
   Logging:
     level: INFO
-    log_file: "output/system.log"
+    log_file: "output/project.log"
