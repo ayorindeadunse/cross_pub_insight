@@ -1,7 +1,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Any, Union
 
 def extract_readme(repo_path: Path) -> str:
     """
@@ -43,7 +43,7 @@ def extract_keywords(text: str) -> list:
     Native keyword extraction: returns most frequent non-trivial words.
     """
     words = re.findall(r'\b\w+\b', text.lower())
-    common_words = {"the", "and", "for", "with", "this", "that", "from", "are" "of" 
+    common_words = {"the", "and", "for", "with", "this", "that", "from", "are","of" 
                     "to", "in", "is", "it", "on", "as", "by", "an", "be", "at", "or"}
     keywords = [word for word in words if word not in common_words and len(word) > 3]
     freq = {}

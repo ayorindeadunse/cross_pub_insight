@@ -1,5 +1,4 @@
 # Core dependencies
-PyYAML
 python-dotenv
 rich
 llama-cpp-python
@@ -9,3 +8,4 @@ pip-tools
 black
 pytest
 openai
+pyyaml
