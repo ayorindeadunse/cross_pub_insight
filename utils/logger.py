@@ -1,11 +1,10 @@
 import logging
 
-def get_logger(name="cross_pub_insight"):
+def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+    if not logger.hasHandlers():
         logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.addHandler(ch)
     return logger
