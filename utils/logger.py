@@ -1,29 +1,35 @@
 import logging
 import sys
 from pathlib import Path
+from utils.config_loader import load_config
 
-def get_logger(name: str = "cross_pub_insight", log_file: str = "output/project.log") -> logging.Logger:
+def get_logger(name: str = "cross_pub_insight") -> logging.Logger:
     logger = logging.getLogger(name)
 
-    # Avoid adding multiple handlers in environments where get_logger might be called repeatedly
     if logger.hasHandlers():
         return logger
-    
-    logger.setLevel(logging.DEBUG)
 
-    # Formatter
+    # Load logging configuration
+    config = load_config()
+    logging_config = config.get("Logging", {})
+
+    log_level = getattr(logging, logging_config.get("level", "DEBUG").upper(), logging.DEBUG)
+    log_file = logging_config.get("log_file", "output/project.log")
+
+    logger.setLevel(log_level)
+
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
-    # Console Handler (stdout)
+    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # File Handler
-    log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
-    file_handler = logging.FileHandler(log_path, encoding='utf-8')  
+    # File handler
+    log_file_path = Path(log_file)
+    log_file_path.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    logger.info(f"Logger initialized. Logs will be saved to {log_path}")
-    return logger    
+
+    return logger
