@@ -6,7 +6,7 @@ logger = get_logger()
 
 def main():
     try:
-        repo_name = "LangGraphDocsBot"
+        repo_name = "LangGraphBotDocIngestor"
         repo_path = os.path.expanduser(f"~/projects/{repo_name}")
 
         logger.info(f"Starting analysis for repository at: {repo_path}")

@@ -3,6 +3,7 @@ import sys
 from dotenv import load_dotenv
 from typing import Optional
 
+load_dotenv()
 class BaseLLMClient:
     def generate(self, prompt: str, **kwargs) -> str:
         raise NotImplementedError("This method should be overridden by subclasses.")
@@ -32,7 +33,7 @@ class LocalLlamaClient(BaseLLMClient):
         self.model_path = model_path or os.getenv("LOCAL_LLM_PATH")
         if not self.model_path or not os.path.exists(self.model_path):
             raise ValueError("LOCAL_LLM_PATH is not set or file does not exist.")
-        self.model = Llama(model_pat=self.model_path, n_ctx=2048)
+        self.model = Llama(model_path=self.model_path, n_ctx=2048)
     
     def generate(self, prompt: str, **kwargs) -> str:
         response = self.model(prompt, max_tokens=kwargs.get("max_tokens_",512))
