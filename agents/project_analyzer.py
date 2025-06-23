@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 from llm.client import get_llm_client
-from tools.repo_parser import parse_repository, format_repo_summary
+from tools.repo_parser import parse_repository, format_repo_summary,condense_repo_summary
 from utils.logger import get_logger
 from utils.config_loader import load_config
 
@@ -69,9 +69,12 @@ class ProjectAnalyzerAgent:
             logger.error(f"Repository parsing failed: {repo_summary['error']}")
             return repo_summary["error"]
 
-        formatted_summary = format_repo_summary(repo_summary)
-        full_prompt = self.prompt_template.format(repo_summary=formatted_summary)
+        # formatted_summary = format_repo_summary(repo_summary)
+        condensed_summary = condense_repo_summary(repo_summary)
+        full_prompt = self.prompt_template.format(repo_summary=condensed_summary)
 
         response = self.llm.generate(full_prompt)
+        print("\n===== PROJECT ANALYSIS =====\n")
+        print(f"LLM Response:\n{response}")  # <--- ADD THIS LINE
         logger.info(f"Generated analysis completed.")
         return response

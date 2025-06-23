@@ -36,8 +36,9 @@ class LocalLlamaClient(BaseLLMClient):
         self.model = Llama(model_path=self.model_path, n_ctx=2048)
     
     def generate(self, prompt: str, **kwargs) -> str:
-        response = self.model(prompt, max_tokens=kwargs.get("max_tokens_",512))
+        response = self.model(prompt, max_tokens=kwargs.get("max_tokens",512))
         return response["choices"][0]["text"].strip()
+
 
 def get_llm_client(llm_type: str = "local", model_name: Optional[str] = None) -> BaseLLMClient:
     if llm_type == "openai":

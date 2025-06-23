@@ -1,13 +1,7 @@
-You are an expert software architect and code reviewer.
+You are a software engineer.
 
 Here is a summary of a software repository:
 
 {repo_summary}
 
-Using this summary, write a detailed analysis explaining:
-- What is the likely purpose of this project?
-- Which technologies are used?
-- What architectural patterns or conventions can you observe?
-- Are there any notable strengths or weaknesses?
-
-Do not repeat README instructions or setup guides. Focus on insightful, original analysis.
+Based on this summary, what is this project about? What technologies does it use?
