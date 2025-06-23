@@ -121,34 +121,33 @@ def format_repo_summary(summary: Dict[str, Any]) -> str:
     )
     return formatted
 
-def condense_repo_summary(full_summary: Dict[str, Any]) -> str:
+def condense_repo_summary(summary: Dict[str, Any]) -> str:
     """
-    Condenses a full repository summary into a concise description suitable for LLM input.
-    Focuses on project purpose, key languages, file types, keywords, and features.
+    Generates a condensed semantic summary of the repository for LLM input.
     """
-    repo_name = full_summary.get("repository_name", "Unknown Project")
+    repo_name = summary.get("repository_name", "Unknown Project")
+    languages = ', '.join(list(summary.get("languages_used", {}).keys())[:3]) or "Unknown Languages"
+    file_types = ', '.join(list(summary.get("file_types", {}).keys())[:3]) or "Unknown File Types"
+    keywords = ', '.join(summary.get("keywords", [])[:5]) or "No Keywords"
 
-    # Extract key parts
-    languages = sorted(
-        full_summary.get("languages_used", {}).items(),
-        key=lambda item: item[1], reverse=True
-    )[:3]
-    languages_str=", ".join([lang for lang, _ in languages]) or "Unknown"
+    # Improve project summary extraction
+    readme_excerpt = summary.get("readme_excerpt", "")
+    project_summary = ""
+    if readme_excerpt:
+        # Try to find the first meaningful paragraph (skip headings/empty lines)
+        for line in readme_excerpt.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):  # Skip empty lines and markdown headers
+                project_summary = line
+                break
+    if not project_summary:
+        project_summary = "No project description available."
 
-    file_types = sorted(
-        full_summary.get("file_types", {}).items(),
-        key=lambda item: item[1], reverse=True
-    )[:3]
-    file_types_str = ", ".join([ext for ext, _ in file_types]) or "Unknown"
-
-    keywords = ", ".join(full_summary.get("keywords", [])[:5]) or "None"
-
-    readme_excerpt = full_summary.get("readme_excerpt", "").strip().split("\n")[0][:300]
-
-    return (
-        f"Project:{repo_name}\n"
-        f"Main Languages: {languages_str}\n"
-        f"File Types: {file_types_str}\n"
+    condensed = (
+        f"Project: {repo_name}\n"
+        f"Main Languages: {languages}\n"
+        f"File Types: {file_types}\n"
         f"Top Keywords: {keywords}\n"
-        f"Project Summary: {readme_excerpt}"
+        f"Project Summary: {project_summary}"
     )
+    return condensed
