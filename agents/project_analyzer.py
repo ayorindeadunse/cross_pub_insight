@@ -74,6 +74,5 @@ class ProjectAnalyzerAgent:
         full_prompt = self.prompt_template.format(repo_summary=condensed_summary)
 
         response = self.llm.generate(full_prompt)
-        print("\n===== PROJECT ANALYSIS =====\n")
         logger.info(f"Generated analysis completed.")
         return response
