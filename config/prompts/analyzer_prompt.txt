@@ -1,5 +1,13 @@
-You are an AI assistant analyzing a software project. Below is a summary of the repository:
+You are an expert software architect and code reviewer.
+
+Here is a summary of a software repository:
 
 {repo_summary}
 
-Provide a concise analysis of the project's purpose, technologies used, and any notable patterns or trends.
+Using this summary, write a detailed analysis explaining:
+- What is the likely purpose of this project?
+- Which technologies are used?
+- What architectural patterns or conventions can you observe?
+- Are there any notable strengths or weaknesses?
+
+Do not repeat README instructions or setup guides. Focus on insightful, original analysis.

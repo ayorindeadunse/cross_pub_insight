@@ -120,3 +120,35 @@ def format_repo_summary(summary: Dict[str, Any]) -> str:
         f"License Excerpt:\n{summary.get('license_excerpt', '')}\n"
     )
     return formatted
+
+def condense_repo_summary(full_summary: Dict[str, Any]) -> str:
+    """
+    Condenses a full repository summary into a concise description suitable for LLM input.
+    Focuses on project purpose, key languages, file types, keywords, and features.
+    """
+    repo_name = full_summary.get("repository_name", "Unknown Project")
+
+    # Extract key parts
+    languages = sorted(
+        full_summary.get("languages_used", {}).items(),
+        key=lambda item: item[1], reverse=True
+    )[:3]
+    languages_str=", ".join([lang for lang, _ in languages]) or "Unknown"
+
+    file_types = sorted(
+        full_summary.get("file_types", {}).items(),
+        key=lambda item: item[1], reverse=True
+    )[:3]
+    file_types_str = ", ".join([ext for ext, _ in file_types]) or "Unknown"
+
+    keywords = ", ".join(full_summary.get("keywords", [])[:5]) or "None"
+
+    readme_excerpt = full_summary.get("readme_excerpt", "").strip().split("\n")[0][:300]
+
+    return (
+        f"Project:{repo_name}\n"
+        f"Main Languages: {languages_str}\n"
+        f"File Types: {file_types_str}\n"
+        f"Top Keywords: {keywords}\n"
+        f"Project Summary: {readme_excerpt}"
+    )
