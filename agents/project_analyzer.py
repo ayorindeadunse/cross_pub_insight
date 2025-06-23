@@ -75,6 +75,5 @@ class ProjectAnalyzerAgent:
 
         response = self.llm.generate(full_prompt)
         print("\n===== PROJECT ANALYSIS =====\n")
-        print(f"LLM Response:\n{response}")  # <--- ADD THIS LINE
         logger.info(f"Generated analysis completed.")
         return response
