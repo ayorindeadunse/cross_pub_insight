@@ -9,3 +9,5 @@ black
 pytest
 openai
 pyyaml
+langgraph
+langchain
