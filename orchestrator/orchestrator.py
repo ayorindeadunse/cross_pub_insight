@@ -20,5 +20,8 @@ class CrossPublicationInsightOrchestrator:
 
         self.executor = self.graph.compile(checkpointer=self.memory)
     
-    def run(self, input_data: dict):
-        return self.executor.invoke(input_data)
+    def run(self, input_data: dict, thread_id: str = None):
+        if thread_id:
+            return self.executor.invoke(input_data, thread_id=thread_id)
+        else:
+            return self.executor.invoke(input_data)
