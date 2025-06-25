@@ -76,3 +76,13 @@ class ProjectAnalyzerAgent:
         response = self.llm.generate(full_prompt)
         logger.info(f"Generated analysis completed.")
         return response
+    
+def run(state: dict) -> dict:
+    print("Running project_analyzer...")
+    agent = ProjectAnalyzerAgent()
+
+    repo_path = state.get("repo_path","")
+    analysis_result = agent.analyze_project(repo_path)
+
+    state["analysis_result"] = analysis_result
+    return state

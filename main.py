@@ -1,5 +1,6 @@
 import os
 import json
+import uuid 
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
 from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
@@ -18,8 +19,12 @@ def run_project_analyzer_test(repo_path):
 def run_orchestrator_test(repo_path):
     logger.info("Running Orchestrator test...")
     orchestrator = CrossPublicationInsightOrchestrator()
-    initial_state = {"repository_path": repo_path}
-
+   # initial_state = {"repository_path": repo_path}
+    initial_state = {
+        "repo_path": repo_path,
+       "thread_id":str(uuid.uuid4()),  # Unique thread ID for tracking
+    }
+    
     result = orchestrator.run(initial_state)
 
     print("\n===== ORCHESTRATION RESULT =====\n")

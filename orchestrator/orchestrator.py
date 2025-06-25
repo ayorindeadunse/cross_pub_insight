@@ -1,6 +1,5 @@
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint import MemorySaver
-
+from langgraph.checkpoint.memory import MemorySaver
 from agents.project_analyzer import run as analyze_project
 from agents.trend_aggregator import run as aggregate_trends
 from agents.comparator import run as compare_projects
