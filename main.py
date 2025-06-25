@@ -25,7 +25,8 @@ def run_orchestrator_test(repo_path):
         "repo_path": repo_path
     }
 
-    result = orchestrator.run(initial_state, thread_id=thread_id)
+    config = {"configurable": {"thread_id": thread_id}}
+    result = orchestrator.run(initial_state, config=config)
 
     print("\n===== ORCHESTRATION RESULT =====\n")
     print(json.dumps(result, indent=2))
