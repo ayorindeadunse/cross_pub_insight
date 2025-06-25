@@ -20,12 +20,12 @@ def run_orchestrator_test(repo_path):
     logger.info("Running Orchestrator test...")
     orchestrator = CrossPublicationInsightOrchestrator()
    # initial_state = {"repository_path": repo_path}
+    thread_id = str(uuid.uuid4())
     initial_state = {
-        "repo_path": repo_path,
-       "thread_id":str(uuid.uuid4()),  # Unique thread ID for tracking
+        "repo_path": repo_path
     }
-    
-    result = orchestrator.run(initial_state)
+
+    result = orchestrator.run(initial_state, thread_id=thread_id)
 
     print("\n===== ORCHESTRATION RESULT =====\n")
     print(json.dumps(result, indent=2))
