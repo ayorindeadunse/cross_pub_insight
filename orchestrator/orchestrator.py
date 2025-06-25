@@ -22,6 +22,6 @@ class CrossPublicationInsightOrchestrator:
     
     def run(self, input_data: dict, thread_id: str = None):
         if thread_id:
-            return self.executor.invoke(input_data, thread_id=thread_id)
+            return self.executor.invoke(input_data, configurable={"thread_id": thread_id})
         else:
             return self.executor.invoke(input_data)
