@@ -41,3 +41,7 @@ repo_parser:
 Logging:
   level: INFO
   log_file: "output/project.log"
+
+embeddings:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  top_k: 5
