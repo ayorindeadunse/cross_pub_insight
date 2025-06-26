@@ -11,3 +11,6 @@ openai
 pyyaml
 langgraph
 langchain
+sentence-transformers==4.1.0
+numpy<2
+torch==2.2.2
