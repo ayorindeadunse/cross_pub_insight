@@ -32,7 +32,8 @@ class SemanticTrendDetector:
 
         similarities = util.pytorch_cos_sim(text_embedding, tag_embeddings)[0]
         top_indices = similarities.topk(self.top_k).indices.tolist()
-        return [tags[i] in top_indices]
+        return [tags[i] for i in top_indices]
+
 
 
         
