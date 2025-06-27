@@ -4,6 +4,7 @@ import uuid
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
 from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
+from agents.trend_aggregator import run as aggregate_trends
 from utils.logger import get_logger
 
 logger = get_logger()
@@ -18,29 +19,36 @@ def run_project_analyzer_test(repo_path):
 
 def run_orchestrator_test(repo_path, comparison_repo_path):
     logger.info("Running Orchestrator test...")
+
     orchestrator = CrossPublicationInsightOrchestrator()
-   # initial_state = {"repository_path": repo_path}
     thread_id = str(uuid.uuid4())
 
-    # Generate comparison_target (another repo) dynamically
-    comparison_summary = parse_repository(comparison_repo_path)
-    condensed_summary = condense_repo_summary(comparison_summary)
+    # Analyze main repo
+    initial_state = {"repo_path": repo_path}
+    config = {"configurable": {"thread_id": thread_id}}
 
+    # Analyze comparison repo
     comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
     comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
 
+    # Aggregate trends for comparison repo
+    trend_input = {
+        "repo_path": comparison_repo_path,
+        "analysis_result": comparison_analysis
+    }
+    trend_result = aggregate_trends(trend_input)
+
+    # Build comparison state
     comparison_target_state = {
         "repo_path": comparison_repo_path,
-        "analysis_result": comparison_analysis["analysis_result"],
-        "aggregated_trends": comparison_analysis["aggregated_trends"]
+        "analysis_result": comparison_analysis,
+        "aggregated_trends": trend_result["aggregated_trends"]
     }
 
-    initial_state = {
-        "repo_path": repo_path,
-        "comparison_target": comparison_target_state,
-    }
+    # Add comparison_target into orchestrator's initial state
+    initial_state["comparison_target"] = comparison_target_state
 
-    config = {"configurable": {"thread_id": thread_id}}
+    # Run orchestrator
     result = orchestrator.run(initial_state, config=config)
 
     print("\n===== ORCHESTRATION RESULT =====\n")
