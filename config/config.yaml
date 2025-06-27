@@ -45,4 +45,4 @@ Logging:
 embeddings:
   model_name: "sentence-transformers/all-MiniLM-L6-v2"
   top_k: 5
-  score_threshold: 0.45
+  score_threshold: 0.4
