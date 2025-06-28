@@ -75,7 +75,16 @@ class ProjectAnalyzerAgent:
         condensed_summary = condense_repo_summary(repo_summary)
         full_prompt = self.prompt_template.format(repo_summary=condensed_summary)
 
+        logger.debug("Condensed repo summary going into prompt:\n" + condensed_summary)
+        logger.debug("Full prompt being sent to LLM:\n" + full_prompt)
+
         response = self.llm.generate(full_prompt)
+
+        logger.debug(f"Raw LLM response: {response}")
+        logger.debug(f"LLM response type: {type(response)}")
+
+        assert isinstance(response, str), f"LLM response was not a string! Got {type(response)}"
+        
         logger.info(f"Generated analysis completed.")
         return response
     

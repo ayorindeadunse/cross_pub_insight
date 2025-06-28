@@ -31,6 +31,9 @@ def run_orchestrator_test(repo_path, comparison_repo_path):
     comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
     comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
 
+    print("\n===== COMPARISON ANALYSIS =====\n")
+    print(comparison_analysis)
+
     # Aggregate trends for comparison repo
     trend_input = {
         "repo_path": comparison_repo_path,
