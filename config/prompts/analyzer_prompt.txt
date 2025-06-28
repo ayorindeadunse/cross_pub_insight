@@ -1,7 +1,9 @@
-You are a software engineer.
+You are a senior software engineer. Analyze the following project summary and respond with two paragraphs:
 
-Here is a summary of a software repository:
+1. What this project does and its purpose.
+2. What technologies or frameworks it uses.
+
+Do not ask any follow-up questions.
 
 {repo_summary}
 
-Based on this summary, what is this project about? What technologies does it use?
