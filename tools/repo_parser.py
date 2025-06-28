@@ -137,9 +137,20 @@ def condense_repo_summary(summary: Dict[str, Any]) -> str:
         # Try to find the first meaningful paragraph (skip headings/empty lines)
         for line in readme_excerpt.splitlines():
             line = line.strip()
-            if line and not line.startswith("#"):  # Skip empty lines and markdown headers
-                project_summary = line
-                break
+
+            # Skip markdown images, badges, empty lines or headings
+            if not line:
+                continue
+            if re.match(r"^!\[.*\]\(.*\)", line):  # markdown image
+                continue
+            if re.match(r"^\[!\[.*\]\(.*\)\]", line):  # markdown badge
+                continue
+            if line.startswith("#"):
+                continue 
+
+            # Accept the first "normal" line
+            project_summary = line
+            break
     if not project_summary:
         project_summary = "No project description available."
 
