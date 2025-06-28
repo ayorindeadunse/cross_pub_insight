@@ -14,8 +14,8 @@ CONFIG = load_config()
 PARSER_CONFIG = CONFIG.get("repo_parser", {})
 
 EXTENSION_LANGUAGE_MAP = PARSER_CONFIG.get("extension_language_map", {})
-MAX_README_EXCERPT = PARSER_CONFIG.get("max_readme_excerpt_chars", 500)
-MAX_LICENSE_EXCERPT = PARSER_CONFIG.get("max_license_excerpt_chars", 200)
+MAX_README_EXCERPT = PARSER_CONFIG.get("max_readme_excerpt_chars", 2000)
+MAX_LICENSE_EXCERPT = PARSER_CONFIG.get("max_license_excerpt_chars", 2000)
 NUM_KEYWORDS = PARSER_CONFIG.get("num_keywords", 10)
 
 COMMON_WORDS = {
@@ -134,12 +134,15 @@ def condense_repo_summary(summary: Dict[str, Any]) -> str:
     readme_excerpt = summary.get("readme_excerpt", "")
     project_summary = ""
     if readme_excerpt:
+        paragraph_lines = []
         # Try to find the first meaningful paragraph (skip headings/empty lines)
         for line in readme_excerpt.splitlines():
             line = line.strip()
 
             # Skip markdown images, badges, empty lines or headings
             if not line:
+                if paragraph_lines:
+                    break
                 continue
             if re.match(r"^!\[.*\]\(.*\)", line):  # markdown image
                 continue
@@ -148,9 +151,13 @@ def condense_repo_summary(summary: Dict[str, Any]) -> str:
             if line.startswith("#"):
                 continue 
 
+            paragraph_lines.append(line)
+            if len(paragraph_lines) >= 3: # Limit paragraph length
+                break
+
             # Accept the first "normal" line
-            project_summary = line
-            break
+            project_summary = " ".join(paragraph_lines).strip()
+            
     if not project_summary:
         project_summary = "No project description available."
 
