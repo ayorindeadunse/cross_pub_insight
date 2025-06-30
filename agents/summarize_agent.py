@@ -47,36 +47,36 @@ class SummarizeAgent:
            logger.exception(f"Error reading summarization prompt from {prompt_path}: {e}")
            raise e
        
-def run(self, state: dict) -> dict:
-    """
-    Runs summarization process using input state dictionary.
+    def run(self, state: dict) -> dict:
+        """
+        Runs summarization process using input state dictionary.
 
-    Args:
-    state (dict): Must include 'analysis_result', 'aggregated_trends', and optionally 'comparison_result'.
+        Args:
+        state (dict): Must include 'analysis_result', 'aggregated_trends', and optionally 'comparison_result'.
 
-    Returns:
-        dict: Updated state with 'final_summary'
-    """
-    logger.info("Generating final project summary...")
+        Returns:
+            dict: Updated state with 'final_summary'
+        """
+        logger.info("Generating final project summary...")
 
-    prompt = self.prompt_template.render(
-        analysis=state.get("analysis_result", ""),
-        trends=state.get("aggregated_trends", ""),
-        comparison=state.get("comparison_result", "")
-    )
+        prompt = self.prompt_template.render(
+            analysis=state.get("analysis_result", ""),
+            trends=state.get("aggregated_trends", ""),
+            comparison=state.get("comparison_result", "")
+        )
 
-    logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
+        logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
 
-    response = self.llm.generate(
-        prompt = prompt,
-        temperature = 0.3,
-        max_tokens = 800
-    )
+        response = self.llm.generate(
+            prompt = prompt,
+            temperature = 0.3,
+            max_tokens = 800
+        )
 
-    logger.info("Final summary generation complete.")
+        logger.info("Final summary generation complete.")
 
-    state["final_memory"] = response
-    return state
+        state["final_summary"] = response
+        return state
 
 
        
