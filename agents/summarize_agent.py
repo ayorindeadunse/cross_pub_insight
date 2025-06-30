@@ -77,6 +77,10 @@ class SummarizeAgent:
 
         state["final_summary"] = response
         return state
+    
+def run(state: dict) -> dict:
+    agent = SummarizeAgent(llm_type="local")
+    return agent.run(state)
 
 
        
