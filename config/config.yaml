@@ -6,6 +6,7 @@
 paths:
   output_dir: "output/"
   analyzer_prompt: "config/prompts/analyzer_prompt.txt"
+  summarize_prompt: "config/prompts/summarize_project.txt"
 
 #Model / LLM Configuration
 llm:
