@@ -55,7 +55,7 @@ def run_aggregate_trends_and_comparison_test(repo_path, comparison_repo_path):
     print("\n===== AGGREGATE TRENDS AND REPO COMPARISON RESULT =====\n")
     print(json.dumps(result, indent=2))
 
-def test_summarize_agent(repo_path, comparison_repo_path):
+def generate_project_summary(repo_path, comparison_repo_path):
     logger.info("Running Summarize Agent test...")
 
     # Step 1: Analyze target repo
@@ -110,10 +110,10 @@ def main():
         print("\n===== CONDENSED REPOSITORY SUMMARY (LLM INPUT) =====\n")
         print(condensed)
 
-        # Run tests
-        run_project_analyzer_test(repo_path)
-        run_aggregate_trends_and_comparison_test(repo_path, comparison_repo_path)
-        test_summarize_agent(repo_path, comparison_repo_path)
+        # Run tests: The first two are run in generate_project_summary, so unless you still want to debug those two function, comment these out for now
+       # run_project_analyzer_test(repo_path)
+      #  run_aggregate_trends_and_comparison_test(repo_path, comparison_repo_path)
+        generate_project_summary(repo_path, comparison_repo_path)
 
     except Exception as e:
         logger.exception(f"An error occurred during the test: {e}")
