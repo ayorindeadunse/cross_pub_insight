@@ -17,7 +17,8 @@ class SummarizeAgent:
             model_name (Optional[str]): Specific model to use; falls back to config default if None.
             config_file (str): Path to the configuration YAML file.
         """
-        self.config = get_llm_client(
+        self.config = load_config(config_file)
+        self.llm = get_llm_client(
             llm_type=llm_type,
             model_name=model_name or self.config.get("llm", {}).get("model_name")
         )
