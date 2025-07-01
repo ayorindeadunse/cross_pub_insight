@@ -1,30 +1,4 @@
-You are a senior software engineer. Based only on the provided repository summary, produce a concise technical analysis.
-
-Strict Instructions:
-- Do not assume features not mentioned.
-- Use only the visible data in the summary.
-- Follow the format exactly.
-
---- EXAMPLE OUTPUT FORMAT ---
-
-1. **Purpose**  
-A web API that allows querying local documentation using embeddings and retrieval.
-
-2. **Key Technologies**  
-- Python  
-- LangGraph  
-- LangChain  
-- Markdown  
-- RAG (retrieval-augmented generation)  
-- Lightweight LLaMA model
-
-3. **Design Notes**  
-- Uses .py, .md, and .txt file types  
-- Embeddings stored locally  
-- LLM runs fully offline
-
---- YOUR TURN ---
+You are an AI assistant. Based only on the following repository summary, describe briefly what the project does and which technologies it uses. Keep your answer short and focused.
 
 Repository Summary:
 {repo_summary}
-
