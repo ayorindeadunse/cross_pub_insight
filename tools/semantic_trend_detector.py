@@ -67,18 +67,18 @@ class SemanticTrendDetector:
         else:
             return [tag for tag, _ in sorted_filtered]
 
-@staticmethod
-def group_by_category(tags: list[str]) -> str:
-    grouped = defaultdict(list)
-    for tag in tags:
-        category = CATEGORY_MAP.get(tag, "Other")
-        grouped[category].append(tag)
+    @staticmethod
+    def group_by_category(tags: list[str]) -> str:
+        grouped = defaultdict(list)
+        for tag in tags:
+            category = CATEGORY_MAP.get(tag, "Other")
+            grouped[category].append(tag)
     
-    result_lines = []
-    for category, items in grouped.items():
-        result_lines.append(f"{category}: {', '.join(items)}")
+        result_lines = []
+        for category, items in grouped.items():
+            result_lines.append(f"{category}: {', '.join(items)}")
     
-    return "\n".join(result_lines)
+        return "\n".join(result_lines)
 
 
 
