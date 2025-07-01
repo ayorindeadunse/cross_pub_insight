@@ -1,14 +1,31 @@
 import yaml
 from pathlib import Path
+from collections import defaultdict
 from typing import List, Optional, Union
 from sentence_transformers import SentenceTransformer, util
+
+CATEGORY_MAP = {
+    "LangGraph": "Frameworks",
+    "LangChain": "Frameworks",
+    "Crewai": "Frameworks",
+    "Faiss": "Vector DBs",
+    "ChromaDB": "Vector DBs",
+    "Weaviate": "Vector DBs",
+    "Llama": "LLMs",
+    "GPT": "LLMs",
+    "OpenAI": "LLMs",
+    "Retrieval": "Techniques",
+    "RAG": "Techniques",
+    "Evaluation": "Workflows",
+    "Fine-tuning": "Workflows",
+    }
 
 class SemanticTrendDetector:
     def __init__(self, config_path: str = "config/config.yaml"):
         self.config = self._load_config(config_path)
         self.model_name = self.config["embeddings"]["model_name"]
         self.top_k = self.config["embeddings"]["top_k"]
-        self.score_threshold = self.config["embeddings"].get("score_threshold", 0.4)
+        self.score_threshold = self.config["embeddings"].get("score_threshold", 0.25)
 
         self.model = SentenceTransformer(self.model_name)
         self.base_tags = [
@@ -21,13 +38,13 @@ class SemanticTrendDetector:
     def _load_config(self, path: str) -> dict:
         with open(Path(path), "r") as f:
             return yaml.safe_load(f)
-    
+
     def detect_trends(
-            self,
-            text: str,
-            additional_candidate_tags: Optional[List[str]] = None,
-            score_threshold: Optional[float] = None,
-            return_scores: bool = False
+        self,
+        text: str,
+        additional_candidate_tags: Optional[List[str]] = None,
+        score_threshold: Optional[float] = None,
+        return_scores: bool = False
     ) -> Union[List[str], List[tuple]]:
         tags = list(set(self.base_tags + (additional_candidate_tags or [])))
         text_embedding = self.model.encode(text, convert_to_tensor=True)
@@ -40,10 +57,29 @@ class SemanticTrendDetector:
         filtered = [(tag, score) for tag, score in scored_tags if score >= threshold]
         sorted_filtered = sorted(filtered, key=lambda x: x[1], reverse=True)
 
+        # 🔍 Log matches
+        print("\n[DEBUG] Trend Detector Matches:")
+        for tag, score in sorted_filtered:
+            print(f"  - {tag} ({score:.3f})")
+
         if return_scores:
             return sorted_filtered
         else:
-            return [tag for tag, _ in sorted_filtered[:self.top_k]]
+            return [tag for tag, _ in sorted_filtered]
+
+@staticmethod
+def group_by_category(tags: list[str]) -> str:
+    grouped = defaultdict(list)
+    for tag in tags:
+        category = CATEGORY_MAP.get(tag, "Other")
+        grouped[category].append(tag)
+    
+    result_lines = []
+    for category, items in grouped.items():
+        result_lines.append(f"{category}: {', '.join(items)}")
+    
+    return "\n".join(result_lines)
+
 
 
 

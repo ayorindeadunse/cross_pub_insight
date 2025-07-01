@@ -8,11 +8,13 @@ def run(state: dict) -> dict:
     if not analysis_text:
         return {**state, "aggregated_trends": "No project analysis result available"}
     
+    
     # Detect semantic trends
     top_tags = detector.detect_trends(analysis_text)
 
-    # Format output
-    trends_summary = "Detected Trends:\n" + "\n".join(f"- {tag}" for tag in top_tags)
+    grouped_summary = SemanticTrendDetector.group_by_category(top_tags)
+    trends_summary = f"Detected Trends:\n{grouped_summary}"
+    
     return {**state, "aggregated_trends": trends_summary}
    
    
