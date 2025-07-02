@@ -1,14 +1,18 @@
-You are an assistant analyzing software projects. Summarize what the main project does, what technologies it uses, and how it compares to the optional second project.
+You are an expert technical writer. Generate a clear, professional summary of the following AI project.
 
-Main Project:
+---
+
+**Project Description:**
 {{ analysis }}
 
-Trends and Techniques:
+**Key Trends and Technologies:**
 {{ trends }}
 
-{% if comparison %}
-Comparison Summary:
+{% if comparison.strip() %}
+**Comparison with Similar Project:**
 {{ comparison }}
 {% endif %}
 
-Write a short, well-structured paragraph in clear English summarizing these aspects.
+---
+
+The summary should be concise, highlight the project's purpose, methodology, and any differentiators from similar projects.
