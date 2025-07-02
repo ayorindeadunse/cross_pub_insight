@@ -9,4 +9,4 @@ You are an AI analyst tasked with summarizing cross-repository insights.
 ## Comparative Insights:
 {{ comparison }}
 
-Based on the above, produce a simple summary of the {{analysis}} and {{comparison}}
+Share your perspective on the comparisons between the repositories.
