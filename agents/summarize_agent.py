@@ -60,10 +60,20 @@ class SummarizeAgent:
         """
         logger.info("Generating final project summary...")
 
+        primary_analysis = state.get("analysis_result", "").strip()
+        comparison_analysis = state.get("comparison_target", {}).get("analysis_result", "").strip()
+
+        # Check for self-comparison
+        if primary_analysis and comparison_analysis and primary_analysis == comparison_analysis:
+              logger.warning("Comparison analysis matches primary analysis. Skipping comparison section.")
+              comparison_section = ""
+        else:
+            comparison_section = state.get("comparison_result", "")
+
         prompt = self.prompt_template.render(
             analysis=state.get("analysis_result", ""),
             trends=state.get("aggregated_trends", ""),
-            comparison=state.get("comparison_result", "")
+            comparison=comparison_section
         )
 
         logger.debug(f"Generated prompt for LLM:\n: + {prompt}")

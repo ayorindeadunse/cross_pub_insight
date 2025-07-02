@@ -1,12 +1,14 @@
-You are an AI analyst tasked with summarizing cross-repository insights.
+You are an assistant analyzing software projects. Summarize what the main project does, what technologies it uses, and how it compares to the optional second project.
 
-## Project Analysis:
+Main Project:
 {{ analysis }}
 
-## Detected Trends:
+Trends and Techniques:
 {{ trends }}
 
-## Comparative Insights:
+{% if comparison %}
+Comparison Summary:
 {{ comparison }}
+{% endif %}
 
-Share your insights on the strengths and weaknesses of the two projects, and provide any recommendations for how the projects could be improved.
+Write a short, well-structured paragraph in clear English summarizing these aspects.
