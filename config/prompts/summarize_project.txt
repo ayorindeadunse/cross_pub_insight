@@ -9,5 +9,5 @@ You are an AI analyst tasked with summarizing cross-repository insights.
 ## Comparative Insights:
 {{ comparison }}
 
-Based on the above, produce a simple summary that accounts for the following: how this project differs from its comparison target and any strategic or technical recommendations.
+Based on the above, produce a simple summary of not more than 200 words that accounts for the following: how this project differs from its comparison target and any strategic or technical recommendations.
 Use concise and informative language and void verbosity. Do not provide bullet points; just a clear summary is required.
