@@ -119,10 +119,10 @@ def main():
         print("\n===== CONDENSED REPOSITORY SUMMARY (LLM INPUT) =====\n")
         print(condensed)
 
-        run_project_analyzer_test(repo_path)
-        print("\n===== FINAL SUMMARY =====\n")
+        #run_project_analyzer_test(repo_path)
+        #print("\n===== FINAL SUMMARY =====\n")
         run_orchestration(repo_path, comparison_repo_path)
-        generate_project_summary(repo_path, comparison_repo_path)
+        #generate_project_summary(repo_path, comparison_repo_path)
 
     except Exception as e:
         logger.exception(f"An error occurred during the test: {e}")
