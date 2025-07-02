@@ -1,5 +1,6 @@
 You are an AI assistant. Based only on the following repository summary, describe briefly what the project does and which technologies it uses. Keep your answer short and focused.
 Do not use bullet points. List the technologies and separate by commmas. In line with this, keep your project summary simple enough to fit in a short paragraph.
+Use only the repository summary as context. Do not get any information from external sources.
 
 Repository Summary:
 {repo_summary}
