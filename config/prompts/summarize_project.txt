@@ -9,4 +9,4 @@ You are an AI analyst tasked with summarizing cross-repository insights.
 ## Comparative Insights:
 {{ comparison }}
 
-Based on the above, produce a simple Retrieval Augmented Generated summary of the parameters and give clear takeaways.
+Based on the above, produce a simple Retrieval Augmented Generated summary of {{ analysis }} and {{ comparison }}
