@@ -68,7 +68,8 @@ class SummarizeAgent:
               logger.warning("Comparison analysis matches primary analysis. Skipping comparison section.")
               comparison_section = ""
         else:
-            comparison_section = state.get("comparison_result", "")
+            # comparison_section = state.get("comparison_result", "")
+            comparison_section = comparison_analysis
 
         prompt = self.prompt_template.render(
             analysis=state.get("analysis_result", ""),
@@ -78,6 +79,7 @@ class SummarizeAgent:
 
         print("---- Comparison ----")
         print(comparison_section)
+        
         logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
 
         response = self.llm.generate(
