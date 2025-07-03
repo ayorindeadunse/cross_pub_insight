@@ -15,4 +15,4 @@ Comparison with Another Project:
 
 ---
 
-Write a detailed summary on the listed projects in a paragraph.
+Write an executive summary on the {{ analysis }} and {{ comparison }} that's short but informative.
