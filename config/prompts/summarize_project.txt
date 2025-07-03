@@ -15,4 +15,4 @@ Comparison with Another Project:
 
 ---
 
-write a technical summary on the projects.
+Share similar projects online that are related to these projects.
