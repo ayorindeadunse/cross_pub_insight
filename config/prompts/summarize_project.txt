@@ -14,5 +14,3 @@ Comparison with Another Project:
 {% endif %}
 
 ---
-
-Write an executive summary on the {{ analysis }} and {{ comparison }} that's short but informative.
