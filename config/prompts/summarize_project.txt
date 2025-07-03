@@ -1,23 +1,23 @@
-You are an expert technical writer. Summarize the following AI project clearly and concisely.
+You are a technical writer. Summarize the project based on the following inputs.
 
 ---
 
-**Project Overview**
+Project Description:
 {{ analysis }}
 
-**Key Trends**
+Detected Trends:
 {{ trends }}
 
 {% if comparison.strip() %}
-**Comparison with Similar Project**
+Comparison with Another Project:
 {{ comparison }}
 {% endif %}
 
 ---
 
-Now write a project summary that includes:
-- The project's core purpose and capabilities
-- The main technologies and techniques used
-- How it compares to a similar project (if applicable)
+Write a concise and professional summary that includes:
+- The purpose and functionality of the project
+- The technologies and techniques used
+- How it compares with another project (if applicable)
 
-The summary should be written in a concise, professional tone, suitable for technical stakeholders.
+The tone should be objective, technical, and easy to follow.
