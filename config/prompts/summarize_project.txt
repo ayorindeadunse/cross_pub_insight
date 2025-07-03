@@ -15,4 +15,4 @@ Comparison with Another Project:
 
 ---
 
-Share similar projects online that are related to these projects.
+Write a detailed summary on the listed projects in a paragraph.
