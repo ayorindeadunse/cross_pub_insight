@@ -15,9 +15,4 @@ Comparison with Another Project:
 
 ---
 
-Write a concise and professional summary that includes:
-- The purpose and functionality of the project
-- The technologies and techniques used
-- How it compares with another project (if applicable)
-
-The tone should be objective, technical, and easy to follow.
+write a technical summary on the projects.
