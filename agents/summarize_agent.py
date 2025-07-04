@@ -78,7 +78,7 @@ class SummarizeAgent:
         )
 
         print("---- Analysis ----")
-        print(analysis)
+        print(primary_analysis)
         
         logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
 
