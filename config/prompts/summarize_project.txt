@@ -1,4 +1,4 @@
-You are a technical writer. Write an executive summary based on the following inputs and compare with similar projects from external sources.
+You are a technical writer. Based on the following input:
 
 ---
 
@@ -14,3 +14,10 @@ Comparison with Another Project:
 {% endif %}
 
 ---
+
+Write a bullet-point summary that covers:
+- The project’s purpose using {{ analysis}} and it's {{ comparison }}
+- Key technologies and architecture
+- Any notable comparisons with a similar project from external sources on the internet.
+
+Use a professional, technical tone.
