@@ -1,23 +1,18 @@
-You are an expert technical writer. Summarize the following AI project clearly and concisely.
+You are an AI analyst tasked with summarizing cross-repository insights.
 
----
-
-**Project Overview**
+## Project Analysis:
 {{ analysis }}
 
-**Key Trends**
+## Detected Trends:
 {{ trends }}
 
-{% if comparison.strip() %}
-**Comparison with Similar Project**
+## Comparative Insights:
 {{ comparison }}
-{% endif %}
 
----
+Based on the above, produce a clear, structured executive summary including:
+- Key project characteristics
+- Major technical trends
+- How this project differs from its comparison target
+- Any strategic or technical recommendations
 
-Now write a project summary that includes:
-- The project's core purpose and capabilities
-- The main technologies and techniques used
-- How it compares to a similar project (if applicable)
-
-The summary should be written in a concise, professional tone, suitable for technical stakeholders.
+Use concise, informative language suitable for technical readers and stakeholders. Avoid unnecessary verbosity.
