@@ -77,8 +77,8 @@ class SummarizeAgent:
             comparison=comparison_section
         )
 
-        print("---- Comparison ----")
-        print(comparison_section)
+        print("---- Analysis ----")
+        print(analysis)
         
         logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
 
