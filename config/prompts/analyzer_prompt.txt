@@ -1,5 +1,5 @@
-You are an AI assistant analyzing a software project. Below is a summary of the repository:
+You are an expert code reviewer. Below is a summary of the code repository:
 
 {repo_summary}
 
-Provide a concise analysis of the project's purpose, technologies used, and any notable patterns or trends.
+Based on this summary, provide a detailed analysis highlighting complex areas, key design decisions, and recommendations for improvement.
