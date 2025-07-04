@@ -1,4 +1,4 @@
-You are a technical writer. Summarize the project based on the following inputs.
+You are a technical writer. Summarize the projects based on the following inputs.
 
 ---
 
