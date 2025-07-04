@@ -52,7 +52,7 @@ def run_orchestration(repo_path, comparison_repo_path):
     # Run orchestrator
     result = orchestrator.run(initial_state, config=config)
 
-    print("\n===== AGGREGATE TRENDS AND REPO COMPARISON RESULT =====\n")
+    print("\n===== CPIA ORCHESTRATION OUTPUT =====\n")
     print(json.dumps(result, indent=2))
 
 def generate_project_summary(repo_path, comparison_repo_path):
