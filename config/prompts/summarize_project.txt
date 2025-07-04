@@ -19,5 +19,3 @@ Write a bullet-point summary that covers:
 - The project’s purpose
 - Key technologies and architecture
 - Any notable comparisons with a similar project
-
-Use a professional, technical tone.
