@@ -18,6 +18,6 @@ Comparison with Another Project:
 Write a bullet-point summary that covers:
 - The project’s purpose
 - Key technologies and architecture
-- Any notable comparisons with a similar project from external sources on the internet.
+- Any notable comparisons with a similar project
 
 Use a professional, technical tone.
