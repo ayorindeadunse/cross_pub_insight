@@ -1,18 +1,21 @@
-You are an AI analyst tasked with summarizing cross-repository insights.
+You are a technical writer. Based on the following input:
 
-## Project Analysis:
+---
+
+Project Description:
 {{ analysis }}
 
-## Detected Trends:
+Detected Trends:
 {{ trends }}
 
-## Comparative Insights:
+{% if comparison.strip() %}
+Comparison with Another Project:
 {{ comparison }}
+{% endif %}
 
-Based on the above, produce a clear, structured executive summary including:
-- Key project characteristics
-- Major technical trends
-- How this project differs from its comparison target
-- Any strategic or technical recommendations
+---
 
-Use concise, informative language suitable for technical readers and stakeholders. Avoid unnecessary verbosity.
+Write a executive summary that covers:
+- The project’s purpose
+- Key technologies and architecture
+- Any notable comparisons with a similar project
