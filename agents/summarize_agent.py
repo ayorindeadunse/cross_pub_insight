@@ -76,9 +76,6 @@ class SummarizeAgent:
             trends=state.get("aggregated_trends", ""),
             comparison=comparison_section
         )
-
-        print("---- Analysis ----")
-        print(primary_analysis)
         
         logger.debug(f"Generated prompt for LLM:\n: + {prompt}")
 

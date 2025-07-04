@@ -1,18 +1,14 @@
-You are an expert technical writer. Generate a clear, professional summary using the following input:
+You are an assistant analyzing software projects. Summarize what the main project does, what technologies it uses, and how it compares to the optional second project.
 
----
-
-**Project Description:**
+Main Project:
 {{ analysis }}
 
-**Key Trends and Technologies:**
+Trends and Techniques:
 {{ trends }}
 
-{% if comparison.strip() %}
-**Comparison with Similar Project:**
+{% if comparison %}
+Comparison Summary:
 {{ comparison }}
 {% endif %}
 
----
-
-The summary should be concise, highlight the project's purpose, methodology, and any differentiators from similar projects.
+Write a short, well-structured paragraph in clear English summarizing these aspects.
