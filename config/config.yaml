@@ -10,7 +10,7 @@ paths:
 
 #Model / LLM Configuration
 llm:
-  model_name: "models/models/phi-2.Q5_K_M.gguf"
+  model_name: "models/phi-2.Q5_K_M.gguf"
   context_window: 2048
   temperature: 0.2
 
