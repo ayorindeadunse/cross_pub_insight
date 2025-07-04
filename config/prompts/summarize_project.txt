@@ -1,14 +1,18 @@
-You are an assistant analyzing software projects. Summarize what the main project does, what technologies it uses, and how it compares to the optional second project.
+You are an AI analyst tasked with summarizing cross-repository insights.
 
-Main Project:
+## Project Analysis:
 {{ analysis }}
 
-Trends and Techniques:
+## Detected Trends:
 {{ trends }}
 
-{% if comparison %}
-Comparison Summary:
+## Comparative Insights:
 {{ comparison }}
-{% endif %}
 
-Write a short, well-structured paragraph in clear English summarizing these aspects.
+Based on the above, produce a clear, structured executive summary including:
+- Key project characteristics
+- Major technical trends
+- How this project differs from its comparison target
+- Any strategic or technical recommendations
+
+Use concise, informative language suitable for technical readers and stakeholders. Avoid unnecessary verbosity.
