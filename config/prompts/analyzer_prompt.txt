@@ -1,20 +1,4 @@
-You are a senior software engineer. Based only on the provided repository summary, produce a concise technical analysis.
+You are an AI assistant. Based only on the following repository summary, describe briefly what the project does and which technologies it uses. Keep your answer short and focused.
 
-**Strict Instructions:**
-- Do not assume features not mentioned explicitly.
-- Use only information visible in the summary.
-- Keep it short and structured (3 sections only).
-
-**Respond in this format:**
-
-1. **Purpose**  
-One short sentence describing what this project does.
-
-2. **Key Technologies**  
-A bullet list of programming languages, libraries, or frameworks explicitly mentioned.
-
-3. **Design Notes**  
-A bullet list of architectural or implementation details if observable (e.g., modular structure, use of LangGraph, RAG, embedding models, file types).
-
-**Repository Summary:**
+Repository Summary:
 {repo_summary}
