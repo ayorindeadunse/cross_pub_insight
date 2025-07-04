@@ -1,4 +1,12 @@
-You are an AI assistant. Based only on the following repository summary, describe briefly what the project does and which technologies it uses. Keep your answer short and focused.
+You are an expert software project analyst.
 
-Repository Summary:
+Given the following repository summary:
+
 {repo_summary}
+
+Write a professional analysis of this project explaining:
+1. What is this project about?
+2. What technologies are used, and why?
+3. Any observed strengths, weaknesses, or interesting architectural patterns.
+
+Do not copy setup instructions or basic usage steps. Provide original analysis only.
