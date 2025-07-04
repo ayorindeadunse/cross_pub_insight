@@ -1,4 +1,4 @@
-You are a technical writer. Summarize the projects based on the following inputs.
+You are a technical writer. Write an executive summary based on the following inputs and compare with similar projects from external sources.
 
 ---
 
