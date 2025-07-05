@@ -1,0 +1,10 @@
+You are a fact-checking assistant. Your goal is to verify the accuracy of the AI-generated analysis below, using only the content from the repository summary.
+
+## AI-Generated Analysis:
+{analysis_result}
+
+## Repository Summary:
+{repo_summary}
+
+Compare the analysis against the. repository content. Identify any statements that are innacurate, unsupported, or overly speculative. Then summarize your findings in plain language, clearly stating whether the analysis is accurate overall, and. listing any discrepancies.
+
