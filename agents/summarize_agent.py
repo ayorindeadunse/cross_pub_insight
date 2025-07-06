@@ -94,12 +94,13 @@ class SummarizeAgent:
         if fact_check_result:
             logger.info("Preparing fact check feedback to summary.")
             fact_check_block = (
-                "=============================================\n"
-                "**FACT CHECK RESULT**\n"
-                "=============================================\n"
+                "\n"
+                "##################################################\n"
+                "#                 🧪 FACT CHECK RESULT            #\n"
+                "##################################################\n"
                 f"{fact_check_result}\n"
-                "=============================================\n\n"
-            ) 
+                "--------------------------------------------------\n\n"
+            )
             response = fact_check_block + response
         return state
     
