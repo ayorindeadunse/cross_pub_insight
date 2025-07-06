@@ -55,10 +55,14 @@ def run_orchestration(repo_path, comparison_repo_path):
 
     # 🔍 FACT CHECK RESULT LOGGING
     print("\n===== 🧪 FACT CHECK RESULT =====\n")
-    print(json.dumps(result.get("fact_check_result", "No fact check result found."), indent=2))
+    print(result.get("fact_check_result", "No fact check result found."))
 
-    print("\n===== CPIA ORCHESTRATION OUTPUT =====\n")
-    print(json.dumps(result, indent=2))
+    print("\n===== CPIA ORCHESTRATION OUTPUT (Raw JSON) =====\n")
+    print(json.dumps(result, indent=2))  # keep if you still want raw log
+
+    print("\n===== 📘 FINAL PROJECT SUMMARY =====\n")
+    print(result.get("final_summary", "No summary generated."))
+
 
 def generate_project_summary(repo_path, comparison_repo_path):
     logger.info("Running Summarize Agent test...")
