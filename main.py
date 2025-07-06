@@ -54,7 +54,6 @@ def run_orchestration(repo_path, comparison_repo_path):
     result = orchestrator.run(initial_state, config=config)
 
     # 🔍 FACT CHECK RESULT LOGGING
-    logger.info("\n===== 🧪 FACT CHECK RESULT =====\n")
     print("\n===== 🧪 FACT CHECK RESULT =====\n")
     print(json.dumps(result.get("fact_check_result", "No fact check result found."), indent=2))
 
