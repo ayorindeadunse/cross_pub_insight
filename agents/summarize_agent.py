@@ -115,7 +115,7 @@ class SummarizeAgent:
 
         # Prepend confidence block
         confidence_block = f"\n Confidence Rating: **{confidence}**\n\n"
-        response = confidence_block + response
+        # response = confidence_block + response
 
         # Attach to state
         state["confidence_rating"] = confidence
@@ -137,7 +137,7 @@ class SummarizeAgent:
                 f"{fact_check_result}\n"
                 "--------------------------------------------------\n\n"
             )
-            response = fact_check_block + response
+            response = confidence_block + fact_check_block + response
             state["final_summary"] = response
 
         return state
