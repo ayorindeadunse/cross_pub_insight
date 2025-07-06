@@ -11,14 +11,6 @@ from utils.logger import get_logger
 
 logger = get_logger()
 
-def run_project_analyzer_test(repo_path):
-    logger.info("Running Project Analyzer Agent test...")
-    agent = ProjectAnalyzerAgent(llm_type="local")
-    analysis = agent.analyze_project(repo_path)
-
-    print("\n===== PROJECT ANALYSIS =====\n")
-    print(analysis)
-
 def run_orchestration(repo_path, comparison_repo_path):
     logger.info("Running Orchestrator test...")
 
@@ -63,48 +55,6 @@ def run_orchestration(repo_path, comparison_repo_path):
     print("\n===== 📘 FINAL PROJECT SUMMARY =====\n")
     print(result.get("final_summary", "No summary generated."))
 
-
-def generate_project_summary(repo_path, comparison_repo_path):
-    logger.info("Running Summarize Agent test...")
-
-    # Step 1: Analyze target repo
-    analyzer = ProjectAnalyzerAgent(llm_type="local")
-    analysis_result = analyzer.analyze_project(repo_path)
-
-    print("\n--- 🔍 Analysis Result ---\n")
-    print(json.dumps(analysis_result, indent=2) if isinstance(analysis_result, dict) else str(analysis_result)[:2000])
-
-    # Step 2: Aggregate trends
-    trend_result = aggregate_trends({
-        "repo_path": repo_path,
-        "analysis_result": analysis_result
-    })
-
-    print("\n--- 📈 Aggregated Trends ---\n")
-    print(json.dumps(trend_result["aggregated_trends"], indent=2) if isinstance(trend_result["aggregated_trends"], dict) else str(trend_result["aggregated_trends"])[:2000])
-
-    # Step 3: Analyze comparison project
-    comparison_analysis = analyzer.analyze_project(comparison_repo_path)
-
-    print("\n--- 🔁 Comparison Project Analysis ---\n")
-    print(json.dumps(comparison_analysis, indent=2) if isinstance(comparison_analysis, dict) else str(comparison_analysis)[:2000])
-
-    # Step 4: Assemble state
-    state = {
-        "repo_path": repo_path,
-        "analysis_result": analysis_result,
-        "aggregated_trends": trend_result["aggregated_trends"],
-        "comparison_result": comparison_analysis
-    }
-
-    # Step 5: Run summarization
-    agent = SummarizeAgent(llm_type="local")
-    updated_state = agent.run(state)
-
-    # Step 6: Output summary
-    print("\n===== FINAL PROJECT SUMMARY =====\n")
-    print(updated_state["final_summary"])
-
 def main():
     try:
         # Target repo
@@ -128,10 +78,7 @@ def main():
         print("\n===== CONDENSED REPOSITORY SUMMARY (LLM INPUT) =====\n")
         print(condensed)
 
-        #run_project_analyzer_test(repo_path)
-        #print("\n===== FINAL SUMMARY =====\n")
         run_orchestration(repo_path, comparison_repo_path)
-        #generate_project_summary(repo_path, comparison_repo_path)
 
     except Exception as e:
         logger.exception(f"An error occurred during the test: {e}")
