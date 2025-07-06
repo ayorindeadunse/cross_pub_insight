@@ -1,5 +1,6 @@
 import os
 import json
+from unittest import result
 import uuid 
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
@@ -51,6 +52,11 @@ def run_orchestration(repo_path, comparison_repo_path):
 
     # Run orchestrator
     result = orchestrator.run(initial_state, config=config)
+
+    # 🔍 FACT CHECK RESULT LOGGING
+    logger.info("\n===== 🧪 FACT CHECK RESULT =====\n")
+    print("\n===== 🧪 FACT CHECK RESULT =====\n")
+    print(json.dumps(result.get("fact_check_result", "No fact check result found."), indent=2))
 
     print("\n===== CPIA ORCHESTRATION OUTPUT =====\n")
     print(json.dumps(result, indent=2))

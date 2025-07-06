@@ -20,8 +20,9 @@ class CrossPublicationInsightOrchestrator:
 
         self.graph.set_entry_point("analyze")
         self.graph.add_edge("analyze", "fact_check")
+        self.graph.add_edge("fact_check", "aggregate")
         self.graph.add_edge("aggregate", "compare")
-        self.graph.add_edge("compare", "summarize")
+        self.graph.add_edge("compare","summarize")
         self.graph.add_edge("summarize", END)
 
         self.executor = self.graph.compile(checkpointer=self.memory)
