@@ -87,7 +87,7 @@ class SummarizeAgent:
 
         logger.info("Final summary generation complete.")
 
-        state["final_summary"] = response
+        
 
         # Append results of fact-checking if available
         fact_check_result = state.get("fact_check_result", "")
@@ -102,6 +102,8 @@ class SummarizeAgent:
                 "--------------------------------------------------\n\n"
             )
             response = fact_check_block + response
+            state["final_summary"] = response
+            
         return state
     
 def run(state: dict) -> dict:
