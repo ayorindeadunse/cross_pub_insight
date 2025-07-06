@@ -47,6 +47,27 @@ class SummarizeAgent:
        except Exception as e:
            logger.exception(f"Error reading summarization prompt from {prompt_path}: {e}")
            raise e
+    
+    def _assess_confidence(self, analysis: str, fact_check: str, trends: str, comparison: str) -> str:
+        """
+        Heuristically. assess confidence based on analysis, completeness and fact-check feedback.
+        Returns one of: 'High', 'Medium', 'Low'
+
+        These are basic heuristics and will be finetuned
+        
+        """
+        if not analysis or len(analysis.strip()) < 100:
+            return "Low"
+        
+        if "not specify" in fact_check.lower() or "missing" in fact_check.lower():
+            return "Medium"
+        if not trends or "None" in trends:
+            return "Medium"
+        if comparison and analysis.strip() == comparison.strip():
+            return "Medium"
+        
+        return "High"
+
        
     def run(self, state: dict) -> dict:
         """
@@ -85,6 +106,21 @@ class SummarizeAgent:
             max_tokens = 800
         )
 
+        confidence = self._assess_confidence(
+            analysis=primary_analysis,
+            fact_check=state.get("fact_check_result", ""),
+            trends=state.get("aggregated_trends", ""),
+            comparison=comparison_section
+        )
+
+        # Prepend confidence block
+        confidence_block = f"\n Confidence Rating: **{confidence}**\n\n"
+        response = confidence_block + response
+
+        # Attach to state
+        state["confidence_rating"] = confidence
+        state["final_summary"] = response
+
         logger.info("Final summary generation complete.")
 
         
@@ -103,7 +139,7 @@ class SummarizeAgent:
             )
             response = fact_check_block + response
             state["final_summary"] = response
-            
+
         return state
     
 def run(state: dict) -> dict:
