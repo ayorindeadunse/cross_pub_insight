@@ -1,4 +1,6 @@
 import os
+os.environ["GGML_METAL_LOG_LEVEL"] = "0"
+
 import sys
 import json
 from unittest import result

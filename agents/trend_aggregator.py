@@ -1,3 +1,6 @@
+import os
+os.environ["GGML_METAL_LOG_LEVEL"] = "0"
+
 from tools.semantic_trend_detector import SemanticTrendDetector
 
 detector = SemanticTrendDetector()
