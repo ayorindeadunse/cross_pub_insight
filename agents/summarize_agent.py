@@ -1,3 +1,6 @@
+import os
+os.environ["GGML_METAL_LOG_LEVEL"] = "0"
+
 from pathlib import Path
 from typing import Optional
 from llm.client import get_llm_client
@@ -138,6 +141,7 @@ class SummarizeAgent:
                 "--------------------------------------------------\n\n"
             )
             response = confidence_block + fact_check_block + response
+            logger.info(f"FINAL SUMMARY :\n: + {response}")
             state["final_summary"] = response
 
         return state

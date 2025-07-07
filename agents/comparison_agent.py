@@ -1,5 +1,11 @@
+import os
+os.environ["GGML_METAL_LOG_LEVEL"] = "0"
+
 from typing import Dict, List
+from utils.logger import get_logger
 from tools.comparison_tool import run_comparison_tool
+
+logger = get_logger(__name__)
 
 def run(state: Dict) -> Dict:
     current_analysis = state.get("analysis_result", "")
@@ -21,5 +27,6 @@ def run(state: Dict) -> Dict:
     )
 
     state["comparison_result"] = result
+    logger.info(f"Comparison result:\n: + {result}")
     return state
 
