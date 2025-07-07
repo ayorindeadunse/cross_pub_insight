@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from unittest import result
 import uuid 
@@ -8,6 +9,7 @@ from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
 from agents.trend_aggregator import run as aggregate_trends
 from agents.summarize_agent import SummarizeAgent
 from utils.logger import get_logger
+from utils.repo_utils import clone_if_remote 
 
 logger = get_logger()
 
@@ -57,31 +59,34 @@ def run_orchestration(repo_path, comparison_repo_path):
 
 def main():
     try:
-        # Target repo
-        repo_name = "LangGraphBotDocIngestor"
-        repo_path = os.path.expanduser(f"~/projects/{repo_name}")
+        input_repos = sys.argv[1:]
 
-        # Comparison repo
-        comparison_repo_name = "gemini-cli-main"
-        comparison_repo_path = os.path.expanduser(f"~/projects/{comparison_repo_name}")
+        if not input_repos or len(input_repos) < 2:
+            print(" Please provide at least one primary and one comparison repo.")
+            print(" Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2] ...")
+            sys.exit(1)
+        
+        # Clone or resolve all input repos 
+        local_repo_paths = [clone_if_remote(repo) for repo in input_repos]
 
-        logger.info(f"Starting repository parsing test for: {repo_path}")
+        repo_path = local_repo_paths[0] #primary repo
+        comparison_repo_paths = local_repo_paths[1:] #secoonday repo
 
-        # Parse Repository
-        repo_summary = parse_repository(repo_path)
-        print("\n===== REPOSITORY SUMMARY =====\n")
-        print(json.dumps(repo_summary, indent=2))
+        logger.info(f"Starting analysis for primary repo: {repo_path}")
+        primary_summary = parse_repository(repo_path)
+        condensed = condense_repo_summary(primary_summary)
 
-        # Condense summary for LLM input
-        condensed = condense_repo_summary(repo_summary)
-
-        print("\n===== CONDENSED REPOSITORY SUMMARY (LLM INPUT) =====\n")
+        print("\n===== PRIMARY REPOSITORY SUMMARY =====\n")
+        print(json.dumps(primary_summary, indent=2))
+        print("\n===== CONDENSED (LLM) SUMMARY =====\n")
         print(condensed)
 
-        run_orchestration(repo_path, comparison_repo_path)
-
+        # Loop over comparison repos
+        for comparison_repo_path in comparison_repo_paths:
+            print("\n Comparing primary repo with: {comparison_repo_path}")
+            run_orchestration(repo_path, comparison_repo_path)
     except Exception as e:
-        logger.exception(f"An error occurred during the test: {e}")
+        logger.exception(f"An error occurred during execution: {e}")
 
 if __name__ == "__main__":
     main()
