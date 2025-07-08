@@ -19,7 +19,7 @@ def run(state: dict) -> dict:
 
     grouped_summary = SemanticTrendDetector.group_by_category(top_tags)
     trends_summary = f"Detected Trends:\n{grouped_summary}"
-    logger.info(f"Detected Trends:\n: + {trends_summary}")
+    logger.info(f"Detected Trends:\n{trends_summary}")
     
     return {**state, "aggregated_trends": trends_summary}
    

@@ -1,0 +1,8 @@
+You are an expert software analyst.
+
+Below is a collection of code snippets and definitions extracted from a project that lacks a meaningful README. Based on this context, provide a clear and concise summary of what the project does, its purpose, and its main features.
+
+Code Context:
+{code_context}
+
+Summary:

@@ -85,7 +85,7 @@ def main():
 
         # Loop over comparison repos
         for comparison_repo_path in comparison_repo_paths:
-            print("\n Comparing primary repo with: {comparison_repo_path}")
+            print(f"\n=== 🔄 Comparing PRIMARY: {repo_path} WITH: {comparison_repo_path} ===\n")
             run_orchestration(repo_path, comparison_repo_path)
     except Exception as e:
         logger.exception(f"An error occurred during execution: {e}")

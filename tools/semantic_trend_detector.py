@@ -36,8 +36,11 @@ class SemanticTrendDetector:
         ]
     
     def _load_config(self, path: str) -> dict:
-        with open(Path(path), "r") as f:
-            return yaml.safe_load(f)
+        try:
+            with open(Path(path), "r") as f:
+                return yaml.safe_load(f)
+        except Exception as e:
+            raise RuntimeError(f"Error loading config from {path}: {e}")
 
     def detect_trends(
         self,
