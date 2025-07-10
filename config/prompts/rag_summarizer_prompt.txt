@@ -1,8 +1,7 @@
-You are an expert software analyst.
+You are analyzing source code files to deduce what the project is about.
 
-Below is a collection of code snippets and definitions extracted from a project that lacks a meaningful README. Based on this context, provide a clear and concise summary of what the project does, its purpose, and its main features.
+Project: {repo_name}
 
-Code Context:
-{code_context}
+Based on the following source files and their content, summarize the purpose, functionality, and features of this codebase in 2–4 concise paragraphs.
 
-Summary:
+{file_context}

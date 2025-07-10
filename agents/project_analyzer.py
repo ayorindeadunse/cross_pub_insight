@@ -65,13 +65,13 @@ class ProjectAnalyzerAgent:
             str: Generated analysis from the LLM.
         """
         logger.info(f"Analyzing repository at: {repo_path}")
-
         repo_summary = parse_repository(repo_path)
         readme_excerpt = repo_summary.get("readme_excerpt", "")
         if is_malformed_readme(readme_excerpt):
             logger.info("README is malformed or unhelpful - generating fallback RAG summary.")
-            rag_tool = RAGSummarizer()
-            repo_summary["readme_excerpt"] = rag_tool.summarize_readme(repo_path)
+            rag_tool = RAGSummarizer(llm_type=self.llm.llm_type, model_name=self.llm.model_name)
+            rag_summary = rag_tool.summarize_readme(repo_path)
+            repo_summary["readme_excerpt"] = rag_summary
         logger.debug(f"Repository summary extracted: {repo_summary}")
 
         if "error" in repo_summary:

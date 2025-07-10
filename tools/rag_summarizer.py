@@ -8,7 +8,6 @@ from utils.logger import get_logger
 from utils.config_loader import load_config
 
 logger = get_logger(__name__)
-CONFIG = load_config()
 
 CODE_EXTENSIONS = {
     # Programming languages
@@ -47,96 +46,111 @@ MAX_SNIPPETS = 10
 MAX_CONTEXT_CHARS = 5000
 
 class RAGSummarizer:
-    def __init__(self, llm_type: str = "local", model_name: Optional[str] = None):
-        self.config = CONFIG
+    def __init__(self, llm_type: str = "local", model_name: Optional[str] = None, config_file: str = "config/config.yaml"):
+        self.config = load_config(config_file)
         self.llm = get_llm_client(
             llm_type=llm_type,
             model_name=model_name or self.config.get("llm", {}).get("model_name")
         )
         self.prompt_template = self._load_prompt_template()
+        self.max_files = self.config.get("rag_summarizer", {}).get("max_files", 10)
+        self.max_file_chars = self.config.get("rag_summarizer", {}).get("max_file_chars", 5000)
     
     def _load_prompt_template(self) -> str:
         prompt_rel_path = self.config.get("paths", {}).get("rag_summarizer_prompt", "config/prompts/rag_summarizer_prompt.txt")
         prompt_path = Path(prompt_rel_path)
 
-        logger.debug(f"Loading RAG summarizer prompt from: {prompt_path}")
+        logger.debug(f"Loading RAG summarizer prompt template from: {prompt_path}")
         if not prompt_path.exists():
-            logger.error(f"Prompt template not fouund at {prompt_path}")
-            raise FileNotFoundError(f"Prompt template not found at: {prompt_path}")
-        
+            logger.error(f"Prompt template not found at {prompt_path}")
+            raise FileNotFoundError(f"Prompt template not found at {prompt_path}")
         try:
             return prompt_path.read_text(encoding="utf-8")
         except Exception as e:
-            logger.error(f"Failed to read prompt template: {e}")
+            logger.exception(f"Error reading prompt template from {prompt_path}: {e}")
             raise e
     
     def summarize_readme(self, repo_path: str) -> str:
-        """
-        Summarizes a project by analyzing source files when the README is malformed or missing.       
-        """
-        logger.info(f"Generating fallback RAG summary for repo: {repo_path}")
+        logger.info(f"Generating RAG-style summary for repo: {repo_path}")
         repo = Path(repo_path)
-        if not repo.exists():
-            return "Repository does not exist."
+        if not repo.exists() or not repo.is_dir():
+            logger.error(f"invalid repository path: {repo_path}")
+            return "Invalid repository path."
         
-        candidate_files = self._collect_source_files(repo)
-        top_files = self._rank_and_select_files(candidate_files, repo)
+        selected_files = self._rank_and_select_files(repo)
 
-        code_context = self._extract_context(top_files, repo)
-        if not code_context.strip():
-            return "Project source code could not be summarized."
+        if not selected_files:
+            logger.warning("No informative source files found.")
+            return "No informative source files found to summarize the project."
         
-        prompt = self.prompt_template.format(code_context=code_context)
-        logger.debug(f"RAG prompt sent to LLM:\n{prompt}")
+        sources = []
+        for filepath in selected_files:
+            try:
+                content = filepath.read_text(encoding="utf-8")[:self.max_file_chars]
+                sources.append(f"\n### File: {filepath.relative_to(repo)}\n{content}")
+            except Exception as e:
+                logger.warning(f"Failed to read {filepath}: {e}")
+        
+        combined_context = "\n".join(sources)
+
+        prompt = self.prompt_template.format(
+            repo_name=repo.name,
+            file_context=combined_context
+        )
+
+        logger.debug("Sending RAG summarization prompt to LLM...")
         response = self.llm.generate(prompt)
 
-        logger.info("LLM RAG summary received.")
+        if not isinstance(response, str):
+            logger.error("LLM returned non-string response for RAG summary.")
+            return "Failed to generate summary."
+        
         return response.strip()
-
     
-    def _collect_source_files(self, repo: Path) -> List[Path]:
-        files = []
-        for root, dirs, filenames in os.walk(repo):
-            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
-            for fname in filenames:
-                if Path(fname).suffix in CODE_EXTENSIONS:
-                    files.append(Path(root) / fname)
-        return files
-    
-    def _rank_and_select_files(self, files: List[Path], repo: Path) -> List[Path]:
-        def score(path: Path):
-            name = path.name.lower()
-            s = -len(str(path.relative_to(repo)))
-            if "main" in name or "init" in name:
-                s += 10
-            if "test" in name:
-                s -= 5
-            return s
-    
-        return sorted(files, key=score, reverse=True)[:MAX_SNIPPETS]
-    
-    def _extract_context(self, files: List[Path], repo: Path) -> str:
-        snippets = []
-        total_chars = 0
-
-        for f in files:
-            try:
-                content = f.read_text(encoding='utf-8')
-                snippet = extract_comments_and_definitions(content)
-                label = f"File: {f.relative_to(repo)}\n{snippet}"
-                snippets.append(label)
-                total_chars += len(label)
-                if total_chars >= MAX_CONTEXT_CHARS:
-                    break
-            except Exception as e:
-                logger.warning(f"Failed to read {f}: {e}")
-                continue
-
-        return "\n\n".join(snippets)[:MAX_CONTEXT_CHARS]
-    
-def extract_comments_and_definitions(code: str) -> str:
-    comments = re.findall(r"(\"\"\".*?\"\"\"|'''.*?'''|#.*?$)", code, re.DOTALL | re.MULTILINE)
-    definitions = re.findall(r"^\s*(def|class|function)\s+[a-zA-Z0-9_]+\s*\(?.*?\)?:?", code, re.MULTILINE)
-    return "\n".join(comments + definitions)[:1000]
+    def _rank_and_select_files(self, repo: Path) -> List[Path]:
+        """
+        Scans all source files and selects the most informative ones based on language-agnostic structure scoring.
+        """
+        candidates = []
+        for root, _, files in os.walk(repo):
+            for fname in files:
+                filepath = Path(root) / fname
+                if not filepath.suffix or filepath.suffix.lower() in {'md', '.txt', '.json', '.yml', '.yaml', '.toml'}:
+                    continue
+                if filepath.name.endswith('.min.js') or filepath.stat().st_size > 100_000:
+                    continue
+                try:
+                    content = filepath.read_text(encoding="utf-8")
+                    score = self._informativeness_score(content, filepath)
+                    candidates.append((score, filepath))
+                except Exception as e:
+                    logger.debug(f"Skipping unreadable file {filepath}: {e}")
+                    continue
         
+        candidates.sort(reverse=True, key=lambda x: x[0])
+        return [path for _, path in candidates[:self.max_files]]
+    
+    def _informativeness_score(self, content:str, filepath: Path) -> int:
+        """
+        Scores content by general informativeness signals: indentation, comments, length, symbols and code-like patterns.
+        """
+        lines = content.splitlines()
+        if len(lines) < 5:
+            return 0
         
+        indent_lines = sum(1 for line in lines if line.startswith(" ") or line.startswith("\t"))
+        comment_lines = sum(1 for line in lines if re.match(r'^\s*(#|//|/\*|\*|<!--)', line))
+        symbols = len(re.findall(r'[{}()\[\];:=>]', content))
+        keywords = len(re.findall(r'\b(def|class|func|fn|impl|interface|struct|module|export|import|async|await|const|var|let)\b', content, re.IGNORECASE))
+
+        score = (
+            (len(lines) // 10) +
+            (indent_lines // 5) +
+            (comment_lines * 2) +
+            (symbols // 15) +
+            (keywords * 3)
+        )
+        return score
+
+
+
