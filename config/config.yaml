@@ -16,8 +16,9 @@ rag_summarizer:
 #Model / LLM Configuration
 llm:
   model_name: "models/phi-2.Q6_K.gguf"
-  context_window: 2048
+  context_window: 36000
   temperature: 0.2
+  type: "local"
 
 # Repo Parser Configuration
 repo_parser:
