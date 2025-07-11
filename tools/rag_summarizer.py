@@ -51,69 +51,66 @@ _llm = get_llm_client(
     model_name=_config.get("llm", {}).get("model_name")
 )
     
-def _load_prompt_template(self) -> str:
-    prompt_rel_path = self.config.get("paths", {}).get("rag_summarizer_prompt", "config/prompts/rag_summarizer_prompt.txt")
+def _load_prompt_template() -> str:
+    prompt_rel_path = _config.get("paths", {}).get("rag_summarizer_prompt", "config/prompts/rag_summarizer_prompt.txt")
     prompt_path = Path(prompt_rel_path)
 
-    logger.debug(f"Loading RAG summarizer prompt template from: {prompt_path}")
+    logger.debug(f"Loading RAG summarizer prompt from: {prompt_path}")
     if not prompt_path.exists():
         logger.error(f"Prompt template not found at {prompt_path}")
         raise FileNotFoundError(f"Prompt template not found at {prompt_path}")
-    try:
-        return prompt_path.read_text(encoding="utf-8")
-    except Exception as e:
-        logger.exception(f"Error reading prompt template from {prompt_path}: {e}")
-        raise e
     
-def summarize_readme(self, repo_path: str) -> str:
+    return prompt_path.read_text(encoding="utf-8")
+
+    
+def summarize_readme(repo_path: str) -> str:
+    """
+    Attempts to generate a RAG-style summary of a repository when the README is missing or malformed.
+    """
     logger.info(f"Generating RAG-style summary for repo: {repo_path}")
     repo = Path(repo_path)
     if not repo.exists() or not repo.is_dir():
-        logger.error(f"invalid repository path: {repo_path}")
         return "Invalid repository path."
-        
-    selected_files = _rank_and_select_files(repo)
+
+    max_files = _config.get("rag_summarizer", {}).get("max_files", 10)
+    max_chars_per_file = _config.get("rag_summarizer", {}).get("max_file_chars", 5000)
+
+    selected_files = _rank_and_select_files(repo, max_files=max_files)
 
     if not selected_files:
         logger.warning("No informative source files found.")
         return "No informative source files found to summarize the project."
-        
+
     sources = []
     for filepath in selected_files:
         try:
-            content = filepath.read_text(encoding="utf-8")[:self.max_file_chars]
+            content = filepath.read_text(encoding="utf-8")[:max_chars_per_file]
             sources.append(f"\n### File: {filepath.relative_to(repo)}\n{content}")
         except Exception as e:
             logger.warning(f"Failed to read {filepath}: {e}")
-        
+
     combined_context = "\n".join(sources)
     prompt_template = _load_prompt_template()
+    prompt = prompt_template.format(repo_name=repo.name, file_context=combined_context)
 
-    prompt = prompt_template.format(
-        repo_name=repo.name,
-        file_context=combined_context
-    )
-
-    logger.debug("Sending RAG summarization prompt to LLM...")
+    logger.debug("Sending RAG prompt to LLM...")
     response = _llm.generate(prompt)
 
     if not isinstance(response, str):
-        logger.error("LLM returned non-string response for RAG summary.")
+        logger.error("LLM returned non-string response.")
         return "Failed to generate summary."
-        
+
     return response.strip()
     
-def _rank_and_select_files(self, repo: Path) -> List[Path]:
-    """
-    Scans all source files and selects the most informative ones based on language-agnostic structure scoring.
-    """
+def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_000) -> List[Path]:
     candidates = []
-    for root, _, files in os.walk(repo):
+    for root, dirs, files in os.walk(repo):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         for fname in files:
             filepath = Path(root) / fname
-            if not filepath.suffix or filepath.suffix.lower() in {'md', '.txt', '.json', '.yml', '.yaml', '.toml'}:
+            if filepath.suffix.lower() not in CODE_EXTENSIONS:
                 continue
-            if filepath.name.endswith('.min.js') or filepath.stat().st_size > 100_000:
+            if filepath.name.endswith('.min.js') or filepath.stat().st_size > max_size:
                 continue
             try:
                 content = filepath.read_text(encoding="utf-8")
@@ -122,19 +119,16 @@ def _rank_and_select_files(self, repo: Path) -> List[Path]:
             except Exception as e:
                 logger.debug(f"Skipping unreadable file {filepath}: {e}")
                 continue
-        
+
     candidates.sort(reverse=True, key=lambda x: x[0])
-    return [path for _, path in candidates[:self.max_files]]
+    return [path for _, path in candidates[:max_files]]
     
-def _informativeness_score(self, content:str, filepath: Path) -> int:
-    """
-    Scores content by general informativeness signals: indentation, comments, length, symbols and code-like patterns.
-    """
+def _informativeness_score(content: str, filepath: Path) -> int:
     lines = content.splitlines()
     if len(lines) < 5:
         return 0
-        
-    indent_lines = sum(1 for line in lines if line.startswith(" ") or line.startswith("\t"))
+
+    indent_lines = sum(1 for line in lines if line.startswith((" ", "\t")))
     comment_lines = sum(1 for line in lines if re.match(r'^\s*(#|//|/\*|\*|<!--)', line))
     symbols = len(re.findall(r'[{}()\[\];:=>]', content))
     keywords = len(re.findall(r'\b(def|class|func|fn|impl|interface|struct|module|export|import|async|await|const|var|let)\b', content, re.IGNORECASE))
