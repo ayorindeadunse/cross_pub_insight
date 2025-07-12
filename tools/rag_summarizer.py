@@ -124,6 +124,7 @@ def summarize_readme(repo_path: str) -> str:
     logger.info(f"RAG prompt being sent to LLM:\n{prompt}")
 
     response = _llm.generate(prompt)
+    logger.info(f"RAG response coming back from LLM:\n{response}")
 
     if not isinstance(response, str):
         logger.error("LLM returned non-string response for RAG summary.")
