@@ -71,7 +71,7 @@ class ProjectAnalyzerAgent:
             logger.info("README is malformed or unhelpful - generating fallback RAG summary.")
             rag_summary = summarize_readme(repo_path)
             repo_summary["readme_excerpt"] = rag_summary
-        logger.info(f"Repository summary extracted: {repo_summary}")
+            logger.info(f"Repository summary extracted: {repo_summary}")
 
         if "error" in repo_summary:
             logger.error(f"Repository parsing failed: {repo_summary['error']}")

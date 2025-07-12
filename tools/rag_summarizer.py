@@ -43,7 +43,7 @@ CODE_EXTENSIONS = {
 
 IGNORE_DIRS = {"tests", "__pycache__", "venv", "env", "node_modules", ".git", "build", "dist"}
 MAX_SNIPPETS = 10
-MAX_CONTEXT_CHARS = 5000
+MAX_CONTEXT_CHARS = 3000
 
 _config = load_config("config/config.yaml")
 _llm = get_llm_client(
@@ -62,6 +62,14 @@ def _load_prompt_template() -> str:
     
     return prompt_path.read_text(encoding="utf-8")
 
+def _is_valid_source_file(path: Path, max_size: int = 100_100) -> bool:
+    ignored_exts = {".sh", ".bat", ".psi", ".bash", ".zsh"}
+    return (
+        path.suffix.lower() in CODE_EXTENSIONS
+        and path.suffix.lower() not in ignored_exts
+        and not path.name.endswith(".min.js")
+        and path.stat().st_size <= max_size
+    )
     
 def summarize_readme(repo_path: str) -> str:
     """
@@ -85,32 +93,15 @@ def summarize_readme(repo_path: str) -> str:
     for filepath in selected_files:
         try:
             content = filepath.read_text(encoding="utf-8")
-            lines = content.splitlines()
-
-            snippet_lines = []
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                if re.match(r'^\s*(#|//|/\*|\*|<!--)', line):
-                    snippet_lines.append(line)
-                elif re.match(r'^\s*(def|class|func|fn|public|private|interface|module|package|export|using|import)\b', line, re.IGNORECASE):
-                    snippet_lines.append(line)
-                if len(snippet_lines) >= 10:
-                    break
-            
-            if not snippet_lines:
+            snippet_text = _extract_snippet_lines(content, max_lines=12)
+            if not snippet_text:
                 continue
-
-            snippet_text = "\n".join(snippet_lines)
             if total_chars + len(snippet_text) > MAX_CONTEXT_CHARS:
                 break
-
             total_chars += len(snippet_text)
             sources.append(f"\n### File: {filepath.relative_to(repo)}\n{snippet_text}")
-
         except Exception as e:
-            logger.warning(f"Skipping unreliable or problematic file {filepath}: {e}")
+            logger.warning(f"Skipping problematic file {filepath}: {e}")
     
     if not sources:
         logger.warning("No usable content extracted for prompt.")
@@ -140,11 +131,7 @@ def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         for fname in files:
             filepath = Path(root) / fname
-            if filepath.suffix.lower() not in CODE_EXTENSIONS:
-                continue
-            if filepath.name.endswith('.min.js') or filepath.stat().st_size > max_size:
-                continue
-            if filepath.suffix == ".sh" and filepath.stat().st_size < 100:  # skip tiny scripts
+            if not _is_valid_source_file(filepath, max_size):
                 continue
             try:
                 content = filepath.read_text(encoding="utf-8")
@@ -157,6 +144,24 @@ def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_
     candidates.sort(reverse=True, key=lambda x: x[0])
     logger.info(f"Selected top files for summarization: {[f.name for _, f in candidates[:max_files]]}")
     return [path for _, path in candidates[:max_files]]
+
+
+def _extract_snippet_lines(content: str, max_lines: int = 12) -> str:
+    snippet = []
+    for line in content.splitlines():
+        line = line.strip()
+        if not line or len(line) < 4:
+            continue
+        if re.match(r"^\s*(#|//|/\*|\*|<!--)", line):
+            snippet.append(line)
+        elif re.match(r"^\s*(def|class|func|fn|public|private|interface|module|package|export|using|import)\b", line, re.IGNORECASE):
+            snippet.append(line)
+        elif re.match(r"^\s*(if|for|while|switch|case)\b", line):
+            snippet.append(line)
+        if len(snippet) >= max_lines:
+            break
+    return "\n".join(snippet)
+
     
 def _informativeness_score(content: str, filepath: Path) -> int:
     lines = content.splitlines()
