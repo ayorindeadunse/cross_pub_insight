@@ -82,6 +82,7 @@ def summarize_readme(repo_path: str) -> str:
         return "No informative source files found to summarize the project."
 
     sources = []
+    logger.info(f"Reading through selected files...")
     for filepath in selected_files:
         try:
             content = filepath.read_text(encoding="utf-8")[:max_chars_per_file]
@@ -92,6 +93,7 @@ def summarize_readme(repo_path: str) -> str:
     combined_context = "\n".join(sources)
     prompt_template = _load_prompt_template()
     prompt = prompt_template.format(repo_name=repo.name, file_context=combined_context)
+    logger.info(f"RAG prompt being sent to LLM: {prompt}")
 
     logger.debug("Sending RAG prompt to LLM...")
     response = _llm.generate(prompt)
