@@ -10,7 +10,7 @@ paths:
   rag_summarizer_prompt: config/prompts/rag_summarizer_prompt.txt
 
 rag_summarizer:
-  max_files: 50
+  max_files: 8
   max_file_chars: 4000
 
 #Model / LLM Configuration

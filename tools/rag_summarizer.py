@@ -70,39 +70,68 @@ def summarize_readme(repo_path: str) -> str:
     logger.info(f"Generating RAG-style summary for repo: {repo_path}")
     repo = Path(repo_path)
     if not repo.exists() or not repo.is_dir():
+        logger.error(f"Invalid repository path: {repo_path}")
         return "Invalid repository path."
-
-    max_files = _config.get("rag_summarizer", {}).get("max_files", 10)
-    max_chars_per_file = _config.get("rag_summarizer", {}).get("max_file_chars", 5000)
-
-    selected_files = _rank_and_select_files(repo, max_files=max_files)
-
+    
+    selected_files = _rank_and_select_files(repo)
     if not selected_files:
         logger.warning("No informative source files found.")
         return "No informative source files found to summarize the project."
-
+    
     sources = []
-    logger.info(f"Reading through selected files...")
+    total_chars = 0
+    logger.info("Extracting informative snippets from selected files...")
+
     for filepath in selected_files:
         try:
-            content = filepath.read_text(encoding="utf-8")[:max_chars_per_file]
-            sources.append(f"\n### File: {filepath.relative_to(repo)}\n{content}")
-        except Exception as e:
-            logger.warning(f"Failed to read {filepath}: {e}")
+            content = filepath.read_text(encoding="utf-8")
+            lines = content.splitlines()
 
+            snippet_lines = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                if re.match(r'^\s*(#|//|/\*|\*|<!--)', line):
+                    snippet_lines.append(line)
+                elif re.match(r'^\s*(def|class|func|fn|public|private|interface|module|package|export|using|import)\b', line, re.IGNORECASE):
+                    snippet_lines.append(line)
+                if len(snippet_lines) >= 10:
+                    break
+            
+            if not snippet_lines:
+                continue
+
+            snippet_text = "\n".join(snippet_lines)
+            if total_chars + len(snippet_text) > MAX_CONTEXT_CHARS:
+                break
+
+            total_chars += len(snippet_text)
+            sources.append(f"\n### File: {filepath.relative_to(repo)}\n{snippet_text}")
+
+        except Exception as e:
+            logger.warning(f"Skipping unreliable or problematic file {filepath}: {e}")
+    
+    if not sources:
+        logger.warning("No usable content extracted for prompt.")
+        return "unable to generate summary from source files."
+    
     combined_context = "\n".join(sources)
     prompt_template = _load_prompt_template()
-    prompt = prompt_template.format(repo_name=repo.name, file_context=combined_context)
-    logger.info(f"RAG prompt being sent to LLM: {prompt}")
+    prompt = prompt_template.format(repo_name = repo.name, file_context=combined_context)
 
-    logger.debug("Sending RAG prompt to LLM...")
+    logger.info("Sending RAG prompt to LLM...")
+    logger.debug(f"RAG prompt being sent. to LLM:\n{prompt}")
+
     response = _llm.generate(prompt)
 
     if not isinstance(response, str):
-        logger.error("LLM returned non-string response.")
-        return "Failed to generate summary."
-
+        logger.error("LLM returned non-string response for RAG summary.")
+        return "Failed to generate a summary."
+    
     return response.strip()
+
+
     
 def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_000) -> List[Path]:
     candidates = []
