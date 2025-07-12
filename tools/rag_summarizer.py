@@ -144,6 +144,8 @@ def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_
                 continue
             if filepath.name.endswith('.min.js') or filepath.stat().st_size > max_size:
                 continue
+            if filepath.suffix == ".sh" and filepath.stat().st_size < 100:  # skip tiny scripts
+                continue
             try:
                 content = filepath.read_text(encoding="utf-8")
                 score = _informativeness_score(content, filepath)
@@ -153,6 +155,7 @@ def _rank_and_select_files(repo: Path, max_files: int = 10, max_size: int = 100_
                 continue
 
     candidates.sort(reverse=True, key=lambda x: x[0])
+    logger.info(f"Selected top files for summarization: {[f.name for _, f in candidates[:max_files]]}")
     return [path for _, path in candidates[:max_files]]
     
 def _informativeness_score(content: str, filepath: Path) -> int:
@@ -160,10 +163,14 @@ def _informativeness_score(content: str, filepath: Path) -> int:
     if len(lines) < 5:
         return 0
 
+    # Common tokens used to identify boilerplate bash scripts
+    repetitive_patterns = ["export ", "PYTHONPATH", "echo", "bash", "job", "cluster"]
+
+    # Compute line-based metrics
     indent_lines = sum(1 for line in lines if line.startswith((" ", "\t")))
     comment_lines = sum(1 for line in lines if re.match(r'^\s*(#|//|/\*|\*|<!--)', line))
     symbols = len(re.findall(r'[{}()\[\];:=>]', content))
-    keywords = len(re.findall(r'\b(def|class|func|fn|impl|interface|struct|module|export|import|async|await|const|var|let)\b', content, re.IGNORECASE))
+    keywords = len(re.findall(r'\b(def|class|func|fn|impl|interface|struct|module|export|import|async|await|const|var|let|main)\b', content, re.IGNORECASE))
 
     score = (
         (len(lines) // 10) +
@@ -172,7 +179,16 @@ def _informativeness_score(content: str, filepath: Path) -> int:
         (symbols // 15) +
         (keywords * 3)
     )
+
+    # Penalize shell scripts with low variety
+    if filepath.suffix == ".sh":
+        lower_content = content.lower()
+        repetition_penalty = sum(lower_content.count(p) for p in repetitive_patterns)
+        if repetition_penalty > 15 or score < 10:
+            return 0  # Skip low-signal shell scripts
+
     return score
+
 
 
 

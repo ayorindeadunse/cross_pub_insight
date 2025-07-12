@@ -1,3 +1,19 @@
+You are analyzing a codebase to understand what the project is designed to do.
+
+Here's the Project: {repo_name}
+
+Below are **snippets of key implementation files**. Based on their content, produce a concise summary describing:
+
+{file_context}
+
+- The project's purpose and goals
+- Core functionality and features
+- How the major components work together
+
+Avoid listing file names or code. Focus on abstracting meaning.
+
+
+
 You are analyzing source code files to deduce what the project is about.
 
 Project: {repo_name}
