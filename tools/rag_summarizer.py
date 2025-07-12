@@ -121,7 +121,7 @@ def summarize_readme(repo_path: str) -> str:
     prompt = prompt_template.format(repo_name = repo.name, file_context=combined_context)
 
     logger.info("Sending RAG prompt to LLM...")
-    logger.debug(f"RAG prompt being sent. to LLM:\n{prompt}")
+    logger.info(f"RAG prompt being sent. to LLM:\n{prompt}")
 
     response = _llm.generate(prompt)
 
