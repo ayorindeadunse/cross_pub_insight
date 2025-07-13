@@ -7,7 +7,6 @@ from typing import Dict, Any, Optional
 from llm.client import get_llm_client
 from tools.repo_parser import parse_repository, format_repo_summary,condense_repo_summary
 from utils.logger import get_logger
-from tools.rag_summarizer import summarize_readme
 from utils.malformed_readme_detector import is_malformed_readme
 from utils.config_loader import load_config
 
@@ -68,10 +67,7 @@ class ProjectAnalyzerAgent:
         repo_summary = parse_repository(repo_path)
         readme_excerpt = repo_summary.get("readme_excerpt", "")
         if is_malformed_readme(readme_excerpt):
-            logger.info("README is malformed or unhelpful - generating fallback RAG summary.")
-            rag_summary = summarize_readme(repo_path)
-            repo_summary["readme_excerpt"] = rag_summary
-            logger.info(f"Repository summary extracted: {repo_summary}")
+            logger.info("README appears malformed or low quality - summary quality may be limited.")
 
         if "error" in repo_summary:
             logger.error(f"Repository parsing failed: {repo_summary['error']}")

@@ -6,18 +6,17 @@ def is_malformed_readme(text: str) -> bool:
     if not text or len(text.strip()) < 100:
         return True
     
-    # Remove markdown/image/html noise
-    cleaned = re.sub(r"<[^>]+>", "", text)  # Remove HTML tags
-    cleaned = re.sub(r"\!\[.*?\]\(.*?\)", "", cleaned)  # Markdown images
-    cleaned = re.sub(r"\[!\[.*?\]\(.*?\)\]", "", cleaned)  # Markdown badges
-    cleaned = re.sub(r"#.*", "", cleaned)  # Headings
-    cleaned = cleaned.strip()
-
-    if len(cleaned.split()) < 30:
+    text = re.sub(r"<(script|style).*?>.*?</\1>", "", text, flags=re.DOTALL)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"\!\[.*?\]\(.*?\)", "", text)
+    text = re.sub(r"\[!\[.*?\]\(.*?\)\]", "", text)
+    text = re.sub(r"#.*", "", text)
+    
+    if len(text.split()) < 30:
         return True
     
     # Too many non-alphabetic characters
-    alpha_ratio = sum(c.isalpha() for c in cleaned) / (len(cleaned) + 1e-5)
+    alpha_ratio = sum(c.isalpha() for c in text) / (len(text) + 1e-5)
     if alpha_ratio < 0.5:
         return True
     

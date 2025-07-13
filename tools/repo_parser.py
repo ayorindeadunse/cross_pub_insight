@@ -4,6 +4,7 @@ os.environ["GGML_METAL_LOG_LEVEL"] = "0"
 import re
 from pathlib import Path
 from typing import Dict, List, Any
+from bs4 import BeautifulSoup
 
 from utils.config_loader import load_config
 from utils.logger import get_logger
@@ -31,7 +32,19 @@ def extract_readme(repo_path: Path) -> str:
         readme_path = repo_path / filename
         if readme_path.exists():
             logger.debug(f"README file found: {readme_path}")
-            return readme_path.read_text(encoding='utf-8')
+            raw = readme_path.read_text(encoding='utf-8')
+        
+            #Clean HTML if necessary
+            soup = BeautifulSoup(raw, "html.parser")
+            text = soup.get_text(separator="\n")
+
+            # Remove empty lines or markdown clutter
+            lines = [line.strip() for line in text.splitlines() if line.strip()]
+            cleaned = "\n".join(lines)
+
+            logger.info(f"Extracted and cleaned README content ({len(cleaned)}) chars)")
+            return cleaned
+        
     logger.warning(f"No README file found in {repo_path}")
     return "No README file found."
 
