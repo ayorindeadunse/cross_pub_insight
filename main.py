@@ -76,12 +76,12 @@ def main():
 
         logger.info(f"Starting analysis for primary repo: {repo_path}")
         primary_summary = parse_repository(repo_path)
-        # condensed = condense_repo_summary(primary_summary)
+        condensed = condense_repo_summary(primary_summary)
 
-        print("\n===== PRIMARY REPOSITORY SUMMARY =====\n")
-        print(json.dumps(primary_summary, indent=2))
-       #  print("\n===== CONDENSED (LLM) SUMMARY =====\n")
-       #  print(condensed)
+       # print("\n===== PRIMARY REPOSITORY SUMMARY =====\n")
+       # print(json.dumps(primary_summary, indent=2))
+        print("\n===== CONDENSED (LLM) SUMMARY =====\n")
+        print(condensed)
 
         # Loop over comparison repos
         for comparison_repo_path in comparison_repo_paths:

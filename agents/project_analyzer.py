@@ -74,8 +74,8 @@ class ProjectAnalyzerAgent:
             return repo_summary["error"]
 
         # formatted_summary = format_repo_summary(repo_summary)
-       # condensed_summary = condense_repo_summary(repo_summary)
-        full_prompt = self.prompt_template.format(repo_summary=repo_summary)
+        condensed_summary = condense_repo_summary(repo_summary)
+        full_prompt = self.prompt_template.format(repo_summary=condensed_summary)
 
        # logger.info("Condensed repo summary going into prompt:\n" + condensed_summary)
         logger.info("Full prompt being sent to LLM:\n" + full_prompt)
