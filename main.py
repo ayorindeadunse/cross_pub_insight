@@ -12,10 +12,11 @@ from agents.trend_aggregator import run as aggregate_trends
 from agents.summarize_agent import SummarizeAgent
 from utils.logger import get_logger
 from utils.repo_utils import clone_if_remote 
+from utils.config_loader import load_config
 
-logger = get_logger()
+logger = get_logger(__name__)
 
-def run_orchestration(repo_path, comparison_repo_path):
+def run_orchestration(repo_path, comparison_repo_path, config_override=None):
     logger.info("Running Orchestrator test...")
 
     orchestrator = CrossPublicationInsightOrchestrator()
@@ -23,7 +24,7 @@ def run_orchestration(repo_path, comparison_repo_path):
 
     # Analyze main repo
     initial_state = {"repo_path": repo_path}
-    config = {"configurable": {"thread_id": thread_id}}
+    config = config_override or {"configurable": {"thread_id": thread_id}}
 
     # Analyze comparison repo
     comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
@@ -46,6 +47,10 @@ def run_orchestration(repo_path, comparison_repo_path):
     # Add comparison_target into orchestrator's initial state
     initial_state["comparison_target"] = comparison_target_state
 
+    cfg = load_config()
+    if cfg.get("hitl", {}).get("enabled", False):
+        logger.info("⚠️  HITL intervention is enabled — you may be prompted to review before final summary.")
+
     # Run orchestrator
     result = orchestrator.run(initial_state, config=config)
 
@@ -61,15 +66,21 @@ def run_orchestration(repo_path, comparison_repo_path):
 
 def main():
     try:
-        input_repos = sys.argv[1:]
+        args = sys.argv[1:]
 
-        if not input_repos or len(input_repos) < 2:
+        if not args or len(args) < 2:
             print(" Please provide at least one primary and one comparison repo.")
             print(" Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2] ...")
             sys.exit(1)
         
+        # Detect and remove --no-hitl flag
+        use_hitl = True
+        if "--no-hitl" in args:
+            use_hitl = False
+            args.remove("==no-hitl")
+        
         # Clone or resolve all input repos 
-        local_repo_paths = [clone_if_remote(repo) for repo in input_repos]
+        local_repo_paths = [clone_if_remote(repo) for repo in args]
 
         repo_path = local_repo_paths[0] #primary repo
         comparison_repo_paths = local_repo_paths[1:] #seconday repo
@@ -86,7 +97,13 @@ def main():
         # Loop over comparison repos
         for comparison_repo_path in comparison_repo_paths:
             print(f"\n=== 🔄 Comparing PRIMARY: {repo_path} WITH: {comparison_repo_path} ===\n")
-            run_orchestration(repo_path, comparison_repo_path)
+
+            config_override = {
+                "configurable": {"thread_id": str(uuid.uuid4())},
+                "hitl_override": {"enabled": use_hitl}
+            }
+
+            run_orchestration(repo_path, comparison_repo_path, config_override)
     except Exception as e:
         logger.exception(f"An error occurred during execution: {e}")
 

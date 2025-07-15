@@ -6,6 +6,9 @@ from agents.comparison_agent import run as compare_projects
 from agents.fact_checker import run as fact_check
 from agents.summarize_agent import run as summarize_project
 
+from utils.config_loader import load_config
+from tools.hitl_intervention import review_before_summary
+
 class CrossPublicationInsightOrchestrator:
     def __init__(self):
         self.memory = MemorySaver()
@@ -28,7 +31,17 @@ class CrossPublicationInsightOrchestrator:
         self.executor = self.graph.compile(checkpointer=self.memory)
     
     def run(self, input_data: dict, config: dict = None):
-        if config:
-            return self.executor.invoke(input_data, config=config)
-        else:
-            return self.executor.invoke(input_data)
+        result = self.executor.invoke(input_data, config=config) if config else self.executor.invoke(input_data)
+        
+        # HITL before summarization
+        cfg = load_config()
+        hitl_enabled = cfg.get("hitl", {}).get("enabled", False)
+
+        if config and "hitl_override" in config:
+            hitl_enabled = config["hitl_override"].get("enabled", hitl_enabled)
+        
+        if hitl_enabled and cfg["hitl"].get("step") == "pre-summary":
+            result = review_before_summary(result)
+        
+        return result
+        
