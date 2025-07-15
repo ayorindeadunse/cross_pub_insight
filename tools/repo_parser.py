@@ -43,7 +43,6 @@ def extract_readme(repo_path: Path) -> str:
             cleaned = "\n".join(lines)
 
             logger.info(f"Extracted and cleaned README content ({len(cleaned)}) chars)")
-            logger.info(f"Cleaned content:{cleaned}")
             return cleaned
         
     logger.warning(f"No README file found in {repo_path}")
