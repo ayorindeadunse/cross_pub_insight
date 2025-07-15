@@ -14,6 +14,7 @@ from utils.logger import get_logger
 from utils.repo_utils import clone_if_remote 
 from utils.config_loader import load_config
 
+# add updates to this file to accommodate user queries. might have to include logic for continuos questions and an option to break out of loop and head to summary
 logger = get_logger(__name__)
 
 def run_orchestration(repo_path, comparison_repo_path, config_override=None):

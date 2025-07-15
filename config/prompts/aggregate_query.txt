@@ -1,0 +1,12 @@
+You are a research assistant summarizing patterns across multiple AI/ML projects.
+
+User Query: {{ query }}
+
+Project Analyses:
+{% for i, analyis in enumerate(analyses) %}
+----- Project {{ i + 1}} -----
+{{ analysis }}
+
+{% endfor %}
+
+Answer:

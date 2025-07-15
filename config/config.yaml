@@ -7,7 +7,7 @@ paths:
   output_dir: "output/"
   analyzer_prompt: "config/prompts/analyzer_prompt.txt"
   summarize_prompt: "config/prompts/summarize_project.txt"
-  rag_summarizer_prompt: config/prompts/rag_summarizer_prompt.txt
+  aggregate_prompt: "config/prompts/aggregate_query.txt"
 
 rag_summarizer:
   max_files: 8
