@@ -7,7 +7,7 @@ import uuid
 
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
-from. orchestrator.orchestrator import CrossPublicationInsightOrchestrator
+from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
 from agents.trend_aggregator import run as aggregate_trends
 from utils.logger import get_logger
 from utils.repo_utils import clone_if_remote
