@@ -3,66 +3,64 @@ os.environ["GGML_METAL_LOG_LEVEL"] = "0"
 
 import sys
 import json
-from unittest import result
-import uuid 
+import uuid
+
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
-from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
+from. orchestrator.orchestrator import CrossPublicationInsightOrchestrator
 from agents.trend_aggregator import run as aggregate_trends
-from agents.summarize_agent import SummarizeAgent
 from utils.logger import get_logger
-from utils.repo_utils import clone_if_remote 
+from utils.repo_utils import clone_if_remote
 from utils.config_loader import load_config
 
-# add updates to this file to accommodate user queries. might have to include logic for continuos questions and an option to break out of loop and head to summary
 logger = get_logger(__name__)
 
-def run_orchestration(repo_path, comparison_repo_path, config_override=None):
-    logger.info("Running Orchestrator test...")
+def run_orchestration(repo_path, comparison_repo_path,  user_query="", use_hitl=True):
+    logger.info("Running Orchestrator...")
 
-    orchestrator = CrossPublicationInsightOrchestrator()
     thread_id = str(uuid.uuid4())
-
-    # Analyze main repo
-    initial_state = {"repo_path": repo_path}
-    config = config_override or {"configurable": {"thread_id": thread_id}}
+    config_override = {
+        "configurable": {"thread_id":thread_id},
+        "hitl_override": {"enabled":use_hitl}
+    }
 
     # Analyze comparison repo
     comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
     comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
 
-    # Aggregate trends for comparison repo
+    # Aggregate trends for comparison. repo
     trend_input = {
         "repo_path": comparison_repo_path,
         "analysis_result": comparison_analysis
     }
     trend_result = aggregate_trends(trend_input)
 
-    # Build comparison state
     comparison_target_state = {
         "repo_path": comparison_repo_path,
-        "analysis_result": comparison_analysis,
+        "analysis_result":comparison_analysis,
         "aggregated_trends": trend_result["aggregated_trends"]
     }
 
-    # Add comparison_target into orchestrator's initial state
-    initial_state["comparison_target"] = comparison_target_state
+    # Build orchestration input
+    initial_state = {
+        "repo_path":repo_path,
+        "comparison_target":comparison_target_state,
+        "user_query":user_query.strip()
+    }
 
-    cfg = load_config()
-    if cfg.get("hitl", {}).get("enabled", False):
-        logger.info("⚠️  HITL intervention is enabled — you may be prompted to review before final summary.")
+    # Initialize orchestrator
+    orchestrator = CrossPublicationInsightOrchestrator(user_query=user_query)
+    result = orchestrator.run(initial_state, config=config_override)
 
-    # Run orchestrator
-    result = orchestrator.run(initial_state, config=config)
+    # Display results
+    print("\n=====FACT CHECK RESULT =====\n")
+    print(result.get("fact_check_result",  "No fact check result found."))
 
-    # 🔍 FACT CHECK RESULT LOGGING
-    print("\n===== 🧪 FACT CHECK RESULT =====\n")
-    print(result.get("fact_check_result", "No fact check result found."))
-
-    print("\n===== CPIA ORCHESTRATION OUTPUT (Raw JSON) =====\n")
-    print(json.dumps(result, indent=2))  # keep if you still want raw log
-
-    print("\n===== 📘 FINAL PROJECT SUMMARY =====\n")
+    if user_query:
+        print("\n===== AGGREGATE QUERY RESULT ====== \n")
+        print(result.get("aggregate_query_result", "No aggregate query generated."))
+    
+    print("\n===== FINAL PROJECT SUMMARY ======\n")
     print(result.get("final_summary", "No summary generated."))
 
 def main():
@@ -70,43 +68,47 @@ def main():
         args = sys.argv[1:]
 
         if not args or len(args) < 2:
-            print(" Please provide at least one primary and one comparison repo.")
-            print(" Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2] ...")
+            print("Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2...] [--query 'your question'] [--no-hitl]")
             sys.exit(1)
         
-        # Detect and remove --no-hitl flag
         use_hitl = True
+        user_query = ""
+
+        # Parse CLI flags
         if "--no-hitl" in args:
             use_hitl = False
-            args.remove("==no-hitl")
+            args.remove("--no-hitl")
         
-        # Clone or resolve all input repos 
+        if "--query" in args:
+            idx = args.index("--query")
+            if idx + 1 < len(args):
+                user_query = args[idx + 1]
+                del args[idx + 2]
+            else:
+                print("Error: --query flag. requires a string value.")
+                sys.exit(1)
+        
+        # Resolve repositories
         local_repo_paths = [clone_if_remote(repo) for repo in args]
+        repo_path = local_repo_paths[0]
+        comparison_repo_paths = local_repo_paths[1]
 
-        repo_path = local_repo_paths[0] #primary repo
-        comparison_repo_paths = local_repo_paths[1:] #seconday repo
-
+        # Display basic info
         logger.info(f"Starting analysis for primary repo: {repo_path}")
         primary_summary = parse_repository(repo_path)
         condensed = condense_repo_summary(primary_summary)
 
-       # print("\n===== PRIMARY REPOSITORY SUMMARY =====\n")
-       # print(json.dumps(primary_summary, indent=2))
         print("\n===== CONDENSED (LLM) SUMMARY =====\n")
         print(condensed)
 
-        # Loop over comparison repos
+        # Compare with each secondary repo 
         for comparison_repo_path in comparison_repo_paths:
-            print(f"\n=== 🔄 Comparing PRIMARY: {repo_path} WITH: {comparison_repo_path} ===\n")
+            print(f"\n=== Comparing PRIMARY: {repo_path} WITH: {comparison_repo_path} ===\n")
+            run_orchestration(repo_path, comparison_repo_path, user_query=user_query, use_hitl=use_hitl)
 
-            config_override = {
-                "configurable": {"thread_id": str(uuid.uuid4())},
-                "hitl_override": {"enabled": use_hitl}
-            }
-
-            run_orchestration(repo_path, comparison_repo_path, config_override)
     except Exception as e:
-        logger.exception(f"An error occurred during execution: {e}")
+        logger.exception(f"An error occured during execution: {e}")
+
 
 if __name__ == "__main__":
     main()
