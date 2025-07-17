@@ -91,7 +91,7 @@ def main():
         # Resolve repositories
         local_repo_paths = [clone_if_remote(repo) for repo in args]
         repo_path = local_repo_paths[0]
-        comparison_repo_paths = local_repo_paths[1]
+        comparison_repo_paths = local_repo_paths[1:]
 
         # Display basic info
         logger.info(f"Starting analysis for primary repo: {repo_path}")
