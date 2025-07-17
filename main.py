@@ -83,7 +83,7 @@ def main():
             idx = args.index("--query")
             if idx + 1 < len(args):
                 user_query = args[idx + 1]
-                del args[idx + 2]
+                del args[idx:idx + 2]
             else:
                 print("Error: --query flag. requires a string value.")
                 sys.exit(1)
