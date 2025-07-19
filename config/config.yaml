@@ -8,6 +8,7 @@ paths:
   analyzer_prompt: "config/prompts/analyzer_prompt.txt"
   summarize_prompt: "config/prompts/summarize_project.txt"
   aggregate_prompt: "config/prompts/aggregate_query.txt"
+  llm_trend_prompt: "config/prompts/llm_trend_extractor.txt"
 
 rag_summarizer:
   max_files: 8

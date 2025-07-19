@@ -8,7 +8,7 @@ import uuid
 from tools.repo_parser import parse_repository, condense_repo_summary
 from agents.project_analyzer import ProjectAnalyzerAgent
 from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
-from agents.trend_aggregator import run as aggregate_trends
+from agents.llm_trend_agent import run as aggregate_trends
 from utils.logger import get_logger
 from utils.repo_utils import clone_if_remote
 from utils.config_loader import load_config
@@ -28,7 +28,7 @@ def run_orchestration(repo_path, comparison_repo_path,  user_query="", use_hitl=
     comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
     comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
 
-    # Aggregate trends for comparison. repo
+    # Aggregate trends for comparison repo
     trend_input = {
         "repo_path": comparison_repo_path,
         "analysis_result": comparison_analysis
