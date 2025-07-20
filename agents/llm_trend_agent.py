@@ -34,7 +34,7 @@ class LLMTrendInsightAgent:
         response = self.llm.generate(prompt)
         return response.strip()
     
-def run(state: Dict[str, Any]) -> Dict[str: Any]:
+def run(state: Dict[str, Any]) -> Dict[str, Any]:
     analysis = state.get("analysis_result", "")
     if not analysis:
         logger.warning("No analysis provided for trend extraction.")
