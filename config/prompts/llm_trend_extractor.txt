@@ -9,20 +9,4 @@ Below is an analysis of a project:
 
 Based on this, extract the **top technical trends or components*** mentioned. Group them under categories if possible (e.g., Frameworks, Models, Techniques, Tooling).
 
-Provide your output as:
-
-## Detected trends
-
-**Frameworks**
-- LangGraph
-- LangChain
-
-**Models**:
-- Llama
-- GPT-4
-
-**Techniques**:
-- RAG
-- Fine-tuning
-
 Avoid guessing. If a trend is uncertain, leave it out.
