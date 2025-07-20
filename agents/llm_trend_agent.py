@@ -30,8 +30,9 @@ class LLMTrendInsightAgent:
     def extract_trends(self, analysis: str) -> str:
         logger.info("Extracting trends using LLM...")
         prompt = self.prompt_template.render(analysis=analysis)
-        logger.debug(f"Prompt to LLM:\n{prompt}")
+        logger.info(f"Prompt to LLM:\n{prompt}")
         response = self.llm.generate(prompt)
+        logger.info(f"Trends respons from LLM:\n{response}")
         return response.strip()
     
 def run(state: Dict[str, Any]) -> Dict[str, Any]:
