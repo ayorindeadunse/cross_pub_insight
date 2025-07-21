@@ -8,6 +8,8 @@ from llm.client import get_llm_client
 from utils.logger import get_logger
 from utils.config_loader import load_config
 
+from tools.semantic_trend_detector import SemanticTrendDetector
+
 
 logger = get_logger(__name__)
 
@@ -41,8 +43,16 @@ def run(state: Dict[str, Any]) -> Dict[str, Any]:
         logger.warning("No analysis provided for trend extraction.")
         return {**state, "aggregated_trends": "No analysis to extract trends from."}
     
-    agent = LLMTrendInsightAgent()
-    trends = agent.extract_trends(analysis)
+    try:
+        agent = LLMTrendInsightAgent()
+        trends = agent.extract_trends(analysis)
+    except Exception as e:
+        logger.warning(f"LLM trend extraction failed. Falling back to semantic method: {e}")
+        # Fallback using semantic trend detector
+        detector = SemanticTrendDetector()
+        top_tags = detector.detect_trends(analysis)
+        grouped_summary = SemanticTrendDetector.group_by_category(top_tags)
+        trends = f"[Fallback] Semantic Trend Detection:\n{grouped_summary}"
 
     logger.info(f"Extracted trends:\n{trends}")
     return {**state, "aggregated_trends": trends}
