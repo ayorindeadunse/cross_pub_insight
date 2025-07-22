@@ -9,6 +9,7 @@ It supports deep repository parsing, LLM-based and semantic trend extraction, fa
 
 ---
 
+
 ## Features
 
 - **Multi-Agent Architecture** using LangGraph
@@ -49,6 +50,7 @@ python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2 ...] --query
 
 Example: python3 main.py https://github.com/user/project-a https://github.com/user/project-b --query "Which uses vector DBs?"
 
+
 ## Project Structure
 
 .
@@ -87,6 +89,7 @@ Example: python3 main.py https://github.com/user/project-a https://github.com/us
 .env-example              # Sample Environment Variable file for guidance
 
 
+
 ## Tooling Used
  - LangGraph
 
@@ -97,6 +100,7 @@ Example: python3 main.py https://github.com/user/project-a https://github.com/us
  - Jinja2 + YAML prompt configs
 
  - HITL prompt injection for summary verification
+
 
  ## Configuration
 
