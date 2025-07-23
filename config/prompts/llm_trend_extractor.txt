@@ -1,4 +1,4 @@
-You are an expoert research assistant analyzing technical AI/ML project descriptions.
+You are an expert research assistant analyzing technical AI/ML project descriptions.
 
 Below is an analysis of a project:
 
