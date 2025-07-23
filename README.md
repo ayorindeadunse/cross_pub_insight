@@ -52,7 +52,6 @@ Example: python3 main.py https://github.com/user/project-a https://github.com/us
 
 
 ## Project Structure
-.
 ├── agents/                     # All agent definitions
 │   ├── project_analyzer.py
 │   ├── llm_trend_agent.py
