@@ -52,7 +52,38 @@ Example: python3 main.py https://github.com/user/project-a https://github.com/us
 
 
 ## Project Structure
-<pre lang="markdown"> ### 📁 Project Structure ```text . ├── agents/ # All agent definitions │ ├── project_analyzer.py │ ├── llm_trend_agent.py │ ├── trend_aggregator.py │ ├── comparison_agent.py │ ├── fact_checker.py │ └── summarize_agent.py │ ├── tools/ # Supporting tools/utilities │ ├── semantic_trend_detector.py │ ├── repo_parser.py │ ├── comparison_tool.py │ └── hitl_intervention.py │ ├── orchestrator/ │ └── orchestrator.py # LangGraph state orchestrator │ ├── config/ │ ├── config.yaml # LLM and model settings │ └── prompts/ # Custom prompt templates │ ├── utils/ # Logging, config loader, HITL logic, etc. │ ├── main.py # CLI entrypoint ├── README.md ├── LICENSE.md ├── requirements.in ├── requirements.txt ├── .env # Local environment variables └── .env-example # Sample .env template ``` </pre>
+<pre lang="markdown"> 
+.
+├── agents/                   # All agent definitions
+│   ├── project_analyzer.py
+│   ├── llm_trend_agent.py
+│   ├── trend_aggregator.py
+│   ├── comparison_agent.py
+│   ├── fact_checker.py
+│   └── summarize_agent.py
+│
+├── tools/                    # Supporting tools/utilities
+│   ├── semantic_trend_detector.py
+│   ├── repo_parser.py
+│   ├── comparison_tool.py
+│   └── hitl_intervention.py
+│
+├── orchestrator/
+│   └── orchestrator.py       # LangGraph state orchestrator
+│
+├── config/
+│   ├── config.yaml           # LLM and model settings
+│   └── prompts/              # Custom prompt templates
+│
+├── utils/                    # Logging, config loaders, etc.
+│
+├── main.py                   # CLI entrypoint
+├── README.md
+├── LICENSE.md
+├── requirements.in
+├── requirements.txt
+├── .env                      # Local environment variables
+└── .env-example              # Sample .env template ``` </pre>
 
 
 ## Tooling Used
