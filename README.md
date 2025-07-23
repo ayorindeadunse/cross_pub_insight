@@ -89,7 +89,6 @@ requirements.txt
 
 .env-example – Sample .env file for guidance
 
-Let me know if you'd like this slotted back into the full R
 
 
 
