@@ -52,41 +52,44 @@ Example: python3 main.py https://github.com/user/project-a https://github.com/us
 
 
 ## Project Structure
+agents/ – All agent definitions
+• project_analyzer.py
+• llm_trend_agent.py
+• trend_aggregator.py
+• comparison_agent.py
+• fact_checker.py
+• summarize_agent.py
 
-.
-├── agents/               # All agent definitions
-│   ├── project_analyzer.py
-│   ├── llm_trend_agent.py
-│   ├── trend_aggregator.py
-│   ├── comparison_agent.py
-│   ├── fact_checker.py
-│   └── summarize_agent.py
-    └── trend_aggregator.py
+tools/ – Supporting tools/utilities
+• semantic_trend_detector.py
+• repo_parser.py
+• comparison_tool.py
+• hitl_intervention.py
 
+orchestrator/
+• orchestrator.py – LangGraph state orchestrator
 
-│
-├── tools/                # Supporting tools/utilities
-│   ├── semantic_trend_detector.py
-│   └── repo_parser.py
-    └── comparison_tool.py
-    └── hitl_intervention.py
-    
-│
-├── orchestrator/
-│   └── orchestrator.py   # LangGraph state orchestrator
-│
-├── config/
-│   ├── config.yaml       # LLM and model settings
-│   └── prompts/          # Custom prompt templates
-│
-├── utils/                # Logging, config, HITL, etc.
-├── main.py               # CLI entrypoint
-└── README.md
-└── LICENSE.md
-└── requirements.in
-└── requirements.txt
-.env                      # Environment Variables
-.env-example              # Sample Environment Variable file for guidance
+config/
+• config.yaml – LLM and model settings
+• prompts/ – Custom prompt templates
+
+utils/ – Logging, config loaders, etc.
+
+main.py – CLI entrypoint
+
+README.md
+
+LICENSE.md
+
+requirements.in
+
+requirements.txt
+
+.env – Environment variables
+
+.env-example – Sample .env file for guidance
+
+Let me know if you'd like this slotted back into the full R
 
 
 
