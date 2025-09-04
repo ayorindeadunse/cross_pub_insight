@@ -23,7 +23,7 @@ class RepoRequest(BaseModel):
     user_query: Optional[str] = ""
     use_hitl: Optional[bool] = True
 
-def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="", use_hitl=True):
+def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="", use_hitl=False):
     logger.info("Running Orchestrator...")
 
 
