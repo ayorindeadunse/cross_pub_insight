@@ -1,7 +1,5 @@
 import pytest
-from unittest.mock import patch
-from httpx import AsyncClient
-from api.server import app
+from unittest.mock import patch, MagicMock
 
 
 @pytest.mark.asyncio
@@ -14,6 +12,7 @@ async def test_run_analysis_mocked(
     mock_aggregate_trends,
     mock_analyze_project,
     mock_clone_if_remote,
+    test_client
 ):
     # Mock dependencies
     mock_clone_if_remote.side_effect = lambda url: f"/local/path/to/{url.split('/')[-1]}"
@@ -33,7 +32,7 @@ async def test_run_analysis_mocked(
         "use_hitl": False,
     }
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with test_client as ac:
         response = await ac.post("/run-analysis/", json=payload)
         assert response.status_code == 200
         data = response.json()
