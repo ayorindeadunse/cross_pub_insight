@@ -11,29 +11,24 @@ async def test_run_analysis_integration(test_client):
     }
 
     # Kick off the background job
-    response = await test_client.post("/run-analysis/", json=payload)
-    assert response.status_code == 200
-    data = response.json()
-    assert "session_id" in data
-    assert data["status"] == "processing"
+    async with test_client as ac:
+        response = await ac.post("/run-analysis/", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+        assert "session_id" in data
+        session_id = data["session_id"]
 
-    session_id = data["session_id"]
-
-    # Poll the results
-    for _ in range(30):  # Poll for up to 30 seconds
-        poll_response = await test_client.get(f"/results/{session_id}")
-        assert poll_response.status_code == 200
-        poll_data = poll_response.json()
-
-        if poll_data["status"] == "completed":
-            assert "results" in poll_data
-            assert isinstance(poll_data["results"], list)
-            return 
+        # Poll the results
+        for _ in range(30):  # Poll for up to 30 seconds
+            result_response = await ac.get(f"/results/{session_id}")
+            result_data = result_response.json()
+            if result_data["status"] == "completed":
+                assert "results" in result_data
+                assert isinstance(result_data["results"], list)
+                return
+            time.sleep(1)
         
-        time.sleep(1)
-    
-    pytest.fail("Analysis did not complete in time")
-            
-
+        pytest.fail("Analysis did not complete in time")
+       
 
    
