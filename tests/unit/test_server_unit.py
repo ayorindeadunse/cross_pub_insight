@@ -36,4 +36,10 @@ async def test_run_analysis_mocked(
     assert response.status_code == 200
     data = response.json()
     assert "session_id" in data
-    assert data["status"] == "processing"
+    assert "status" in data
+    assert data["status"] == "processing" or data["status"] == "completed"
+
+    mock_clone_if_remote.assert_called_once()
+    mock_analyze_project.assert_called_once()
+    mock_orchestrator_run.assert_called_once()
+  
