@@ -32,9 +32,8 @@ async def test_run_analysis_mocked(
         "use_hitl": False,
     }
 
-    async with test_client as ac:
-        response = await ac.post("/run-analysis/", json=payload)
-        assert response.status_code == 200
-        data = response.json()
-        assert "session_id" in data
-        assert data["status"] == "processing"
+    response = await test_client.post("/run-analysis/", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "session_id" in data
+    assert data["status"] == "processing"
