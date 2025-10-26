@@ -4,9 +4,9 @@ import time
 @pytest.mark.asyncio
 async def test_run_analysis_integration(test_client):
     payload = {
-        "primary_repo": "https://github.com/rushter/MLAgorithms",
-        "comparison_repos": ["https://github.com/GokuMohandas/Made-With-ML"],
-        "user_query": "What trends in ML are emerging?",
+        "primary_repo": "https://github.com/python/cpython",
+        "comparison_repos": ["https://github.com/pallets/flask"],
+        "user_query": "What patterns can we observe in these Python projects?",
         "use_hitl": False 
     }
 
