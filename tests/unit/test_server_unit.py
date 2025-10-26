@@ -260,10 +260,32 @@ async def test_run_analysis_with_invalid_json(test_client):
 
 
 @pytest.mark.asyncio
+@patch("api.server.CrossPublicationInsightOrchestrator")
+@patch("api.server.aggregate_trends")
+@patch("api.server.ProjectAnalyzerAgent")
 @patch("api.server.clone_if_remote")
-async def test_session_id_uniqueness(mock_clone_if_remote, test_client):
+async def test_session_id_uniqueness(mock_clone_if_remote, mock_project_analyzer, mock_aggregate_trends, mock_orchestrator, test_client):
     """Test that each analysis gets a unique session ID"""
     mock_clone_if_remote.side_effect = lambda url: f"/local/path/to/{url.split('/')[-1]}"
+    
+    # Mock ProjectAnalyzerAgent
+    mock_analyzer_instance = MagicMock()
+    mock_analyzer_instance.analyze_repository.return_value = "Mock analysis result"
+    mock_project_analyzer.return_value = mock_analyzer_instance
+    
+    # Mock aggregate_trends
+    mock_aggregate_trends.return_value = {"aggregated_trends": ["trend1", "trend2"]}
+    
+    # Mock CrossPublicationInsightOrchestrator
+    mock_orchestrator_instance = MagicMock()
+    mock_orchestrator_instance.run_orchestration.return_value = {
+        "primary_analysis": "Primary mock analysis",
+        "comparison_analyses": ["Comparison mock analysis"],
+        "fact_check_results": ["Fact check result"],
+        "aggregate_query_results": ["Query result"],
+        "final_summary": "Final mock summary"
+    }
+    mock_orchestrator.return_value = mock_orchestrator_instance
     
     payload = {
         "primary_repo": "https://github.com/mockorg/mock-repo",
