@@ -1,0 +1,23 @@
+CrossPublicationImpactAssistsnt module 3 requirements 
+
+
+
+Requirements
+
+Your final project must demonstrate a production-ready version of the multi-agent system you built in Module 2. You are expected to show improvements across the following areas:
+
+
+
+Testing
+
+Safety
+
+User Interface
+
+Operational resilience
+
+Documentation. So basically we are improving upon the current version of the CPIA project...Remember we made it a CLI, so for us to share this publicly as a deplyed solution  let's continue on the api version of this project. We will make this work and testable in swagger for now.... when we are satisfied, we wiill build a UI (Blazor), to consume these endpoints, but one step at a time.
+
+
+
+Sent from my iPhone
