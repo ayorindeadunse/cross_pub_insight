@@ -142,3 +142,36 @@ class HealthCheckResponse(BaseModel):
     version: str = Field(..., description="API version")
     timestamp: str = Field(..., description="Check timestamp")
     dependencies: Optional[dict] = Field(None, description="Dependency status")
+
+
+class MonitoringHealthResponse(BaseModel):
+    """Detailed monitoring health check response"""
+    
+    status: str = Field(..., description="Overall system health status")
+    timestamp: str = Field(..., description="Check timestamp")
+    version: str = Field(..., description="API version")
+    health_checks: dict = Field(..., description="Individual health check results")
+    system_metrics: dict = Field(..., description="System metrics")
+    uptime_seconds: float = Field(..., description="System uptime in seconds")
+
+
+class MonitoringMetricsResponse(BaseModel):
+    """System metrics response"""
+    
+    timestamp: str = Field(..., description="Metrics timestamp")
+    memory_usage: dict = Field(..., description="Memory usage statistics")
+    operation_counts: dict = Field(..., description="Operation counts by type")
+    response_times: dict = Field(..., description="Average response times")
+    error_rates: dict = Field(..., description="Error rates by operation")
+
+
+class MonitoringSummaryResponse(BaseModel):
+    """Monitoring summary response"""
+    
+    timestamp: str = Field(..., description="Summary timestamp")
+    overall_status: str = Field(..., description="Overall system status")
+    total_operations: int = Field(..., description="Total operations count")
+    avg_response_time: float = Field(..., description="Average response time")
+    error_rate: float = Field(..., description="Overall error rate")
+    uptime_seconds: float = Field(..., description="System uptime")
+    health_summary: dict = Field(..., description="Health checks summary")

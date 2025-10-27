@@ -17,7 +17,10 @@ from tools.repo_parser import parse_repository, condense_repo_summary
 from utils.repo_utils import clone_if_remote
 
 # Import our enhanced models and security
-from api.models import RepoRequest, AnalysisResponse, AnalysisResult, HealthCheckResponse
+from api.models import (
+    RepoRequest, AnalysisResponse, AnalysisResult, HealthCheckResponse,
+    MonitoringHealthResponse, MonitoringMetricsResponse, MonitoringSummaryResponse
+)
 from api.security import setup_security_middleware
 
 logger = get_logger(__name__)
@@ -403,7 +406,7 @@ async def health_check():
         )
 
 
-@app.get("/monitoring/health")
+@app.get("/monitoring/health", response_model=MonitoringHealthResponse)
 async def detailed_health_check():
     """
     Comprehensive health check with system monitoring.
@@ -425,14 +428,26 @@ async def detailed_health_check():
                 elif result.status == HealthStatus.DEGRADED and overall_status == HealthStatus.HEALTHY:
                     overall_status = HealthStatus.DEGRADED
             
-            response = {
-                "status": overall_status.value,
-                "timestamp": datetime.now().isoformat(),
-                "version": "1.0.0",
-                "health_checks": {name: result.to_dict() for name, result in health_results.items()},
-                "system_metrics": system_metrics,  # system_metrics is already a dict
-                "uptime_seconds": (datetime.utcnow() - monitoring_system.start_time).total_seconds()
-            }
+            # Convert health results to proper dict format
+            health_checks_dict = {}
+            for name, result in health_results.items():
+                health_checks_dict[name] = {
+                    "status": result.status.value,
+                    "component": result.component,
+                    "response_time_ms": result.response_time_ms,
+                    "timestamp": result.timestamp.isoformat(),
+                    "details": result.details,
+                    "error": result.error
+                }
+            
+            response_data = MonitoringHealthResponse(
+                status=overall_status.value,
+                timestamp=datetime.now().isoformat(),
+                version="1.0.0",
+                health_checks=health_checks_dict,
+                system_metrics=system_metrics,
+                uptime_seconds=(datetime.utcnow() - monitoring_system.start_time).total_seconds()
+            )
             
             # Record monitoring metrics
             monitoring_system.record_operation_metrics(
@@ -442,7 +457,7 @@ async def detailed_health_check():
                 True
             )
             
-            return JSONResponse(content=response)
+            return response_data
     
     except Exception as e:
         structured_logger.error(
@@ -450,17 +465,18 @@ async def detailed_health_check():
             context=LogContext(component=ComponentType.API, operation="detailed_health_check"),
             exception=e
         )
-        return JSONResponse(
-            status_code=500,
-            content={
-                "status": "unhealthy",
-                "timestamp": datetime.now().isoformat(),
-                "error": str(e)
-            }
+        # Return error response with proper model
+        return MonitoringHealthResponse(
+            status="unhealthy",
+            timestamp=datetime.now().isoformat(),
+            version="1.0.0",
+            health_checks={},
+            system_metrics={},
+            uptime_seconds=0.0
         )
 
 
-@app.get("/monitoring/metrics")
+@app.get("/monitoring/metrics", response_model=MonitoringMetricsResponse)
 async def get_metrics():
     """
     Get operation and performance metrics.
@@ -476,7 +492,14 @@ async def get_metrics():
                 True
             )
             
-            return JSONResponse(content=operation_metrics)
+            # Return properly structured response
+            return MonitoringMetricsResponse(
+                timestamp=datetime.now().isoformat(),
+                memory_usage=operation_metrics.get("memory_usage", {}),
+                operation_counts=operation_metrics.get("operation_counts", {}),
+                response_times=operation_metrics.get("response_times", {}),
+                error_rates=operation_metrics.get("error_rates", {})
+            )
     
     except Exception as e:
         structured_logger.error(
@@ -484,13 +507,17 @@ async def get_metrics():
             context=LogContext(component=ComponentType.API, operation="get_metrics"),
             exception=e
         )
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
+        # Return error with proper model
+        return MonitoringMetricsResponse(
+            timestamp=datetime.now().isoformat(),
+            memory_usage={},
+            operation_counts={},
+            response_times={},
+            error_rates={"get_metrics": 1.0}
         )
 
 
-@app.get("/monitoring/summary")
+@app.get("/monitoring/summary", response_model=MonitoringSummaryResponse)
 async def get_monitoring_summary():
     """
     Get comprehensive monitoring summary including health, metrics, and alerts.
@@ -506,7 +533,16 @@ async def get_monitoring_summary():
                 True
             )
             
-            return JSONResponse(content=summary)
+            # Return properly structured response
+            return MonitoringSummaryResponse(
+                timestamp=datetime.now().isoformat(),
+                overall_status=summary.get("overall_status", "unknown"),
+                total_operations=summary.get("total_operations", 0),
+                avg_response_time=summary.get("avg_response_time", 0.0),
+                error_rate=summary.get("error_rate", 0.0),
+                uptime_seconds=summary.get("uptime_seconds", 0.0),
+                health_summary=summary.get("health_summary", {})
+            )
     
     except Exception as e:
         structured_logger.error(
@@ -514,9 +550,15 @@ async def get_monitoring_summary():
             context=LogContext(component=ComponentType.API, operation="get_monitoring_summary"),
             exception=e
         )
-        return JSONResponse(
-            status_code=500,
-            content={"error": str(e)}
+        # Return error with proper model
+        return MonitoringSummaryResponse(
+            timestamp=datetime.now().isoformat(),
+            overall_status="unhealthy",
+            total_operations=0,
+            avg_response_time=0.0,
+            error_rate=1.0,
+            uptime_seconds=0.0,
+            health_summary={}
         )
 
 
