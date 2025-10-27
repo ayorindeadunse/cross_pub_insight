@@ -8,6 +8,8 @@ from datetime import datetime
 import traceback
 
 from utils.logger import get_logger
+from utils.structured_logger import get_structured_logger, LogContext, ComponentType, PerformanceMetrics
+from utils.simple_monitoring import get_monitoring_system, HealthStatus
 from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
 from agents.project_analyzer import ProjectAnalyzerAgent
 from agents.trend_aggregator import run as aggregate_trends
@@ -19,13 +21,15 @@ from api.models import RepoRequest, AnalysisResponse, AnalysisResult, HealthChec
 from api.security import setup_security_middleware
 
 logger = get_logger(__name__)
+structured_logger = get_structured_logger("api")
+monitoring_system = get_monitoring_system()
 
 session_store: Dict[str, Dict] = {}
 
 # Initialize FastAPI app with enhanced configuration
 app = FastAPI(
     title="Cross Publication Insight Assistant API",
-    description="Multi-agent system for analyzing and comparing AI/ML repositories",
+    description="Multi-agent system for analyzing and comparing AI/ML repositories with production monitoring",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -141,57 +145,191 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
         }
 
 
+def run_orchestration_with_monitoring(session_id, repo_path, comparison_repo_paths, user_query="", use_hitl=False, request_session_id=None):
+    """Enhanced orchestration with comprehensive monitoring and structured logging"""
+    context = LogContext(
+        session_id=request_session_id or session_id,
+        component=ComponentType.ORCHESTRATOR,
+        operation="run_orchestration",
+        repo_path=repo_path
+    )
+    
+    operation_start = datetime.now()
+    
+    try:
+        with structured_logger.operation_context("run_orchestration", ComponentType.ORCHESTRATOR, context) as (op_context, metrics):
+            structured_logger.info(
+                f"Starting enhanced orchestration for session {session_id}",
+                context=op_context,
+                extra_data={
+                    "repo_path": repo_path,
+                    "comparison_repos_count": len(comparison_repo_paths),
+                    "user_query_length": len(user_query),
+                    "use_hitl": use_hitl
+                }
+            )
+            
+            # Run the existing orchestration logic but with monitoring
+            run_orchestration(session_id, repo_path, comparison_repo_paths, user_query, use_hitl)
+            
+            # Calculate total duration
+            total_duration = (datetime.now() - operation_start).total_seconds() * 1000
+            
+            # Check if session completed successfully
+            session_data = session_store.get(session_id, {})
+            success = session_data.get("status") == "completed"
+            
+            structured_logger.info(
+                f"Orchestration {'completed' if success else 'failed'} for session {session_id}",
+                context=op_context,
+                extra_data={
+                    "total_duration_ms": total_duration,
+                    "session_status": session_data.get("status"),
+                    "has_results": "results" in session_data
+                }
+            )
+            
+            # Record orchestration metrics
+            monitoring_system.record_operation_metrics(
+                "run_orchestration",
+                "orchestrator",
+                total_duration,
+                success
+            )
+            
+    except Exception as e:
+        # Calculate duration even for failures
+        total_duration = (datetime.now() - operation_start).total_seconds() * 1000
+        
+        structured_logger.error(
+            f"Enhanced orchestration failed for session {session_id}",
+            context=context,
+            exception=e,
+            extra_data={
+                "total_duration_ms": total_duration,
+                "repo_path": repo_path,
+                "error_type": type(e).__name__
+            }
+        )
+        
+        # Record failed orchestration
+        monitoring_system.record_operation_metrics(
+            "run_orchestration",
+            "orchestrator",
+            total_duration,
+            False
+        )
+
+
 # Enhanced API endpoints with proper error handling
 @app.post("/run-analysis/", response_model=AnalysisResponse)
 async def run_analysis(request: RepoRequest, background_tasks: BackgroundTasks):
     """
-    Start repository analysis with enhanced validation and error handling.
+    Start repository analysis with enhanced validation, monitoring, and structured logging.
     """
+    session_id = str(uuid4())
+    request_context = LogContext(
+        session_id=session_id,
+        request_id=str(uuid4()),
+        component=ComponentType.API,
+        operation="run_analysis",
+        repo_path=request.primary_repo
+    )
+    
     try:
-        session_id = str(uuid4())
-        session_store[session_id] = {
-            "status": "processing", 
-            "results": [],
-            "timestamp": datetime.now().isoformat(),
-            "request": request.model_dump()
-        }
-        
-        background_tasks.add_task(
-            run_orchestration, 
-            session_id, 
-            request.primary_repo, 
-            request.comparison_repos, 
-            request.user_query, 
-            request.use_hitl
-        )
-        
-        logger.info(f"Started analysis session {session_id}")
-        
-        return AnalysisResponse(
-            session_id=session_id,
-            status="processing",
-            message="Analysis started successfully",
-            timestamp=datetime.now().isoformat()
-        )
+        with structured_logger.operation_context("run_analysis", ComponentType.API, request_context) as (context, metrics):
+            # Initialize session
+            session_store[session_id] = {
+                "status": "processing", 
+                "results": [],
+                "timestamp": datetime.now().isoformat(),
+                "request": request.model_dump()
+            }
+            
+            structured_logger.info(
+                f"Starting analysis for session {session_id}",
+                context=context,
+                extra_data={
+                    "primary_repo": request.primary_repo,
+                    "comparison_repos_count": len(request.comparison_repos),
+                    "has_user_query": bool(request.user_query),
+                    "use_hitl": request.use_hitl
+                }
+            )
+            
+            # Add background task with monitoring
+            background_tasks.add_task(
+                run_orchestration_with_monitoring, 
+                session_id, 
+                request.primary_repo, 
+                request.comparison_repos, 
+                request.user_query, 
+                request.use_hitl,
+                context.session_id
+            )
+            
+            # Record successful API call
+            monitoring_system.record_operation_metrics(
+                "run_analysis",
+                "api",
+                metrics.duration_ms or 0,
+                True
+            )
+            
+            return AnalysisResponse(
+                session_id=session_id,
+                status="processing",
+                message="Analysis started successfully",
+                timestamp=datetime.now().isoformat()
+            )
         
     except ValidationError as e:
-        logger.error(f"Validation error: {str(e)}")
+        structured_logger.error(
+            "Validation error in analysis request",
+            context=request_context,
+            exception=e,
+            extra_data={"validation_errors": e.errors()}
+        )
+        
+        # Record failed API call
+        monitoring_system.record_operation_metrics(
+            "run_analysis",
+            "api",
+            0,
+            False
+        )
+        
         raise HTTPException(
             status_code=422,
             detail={
                 "error": "Validation failed",
                 "message": "Invalid input data",
-                "details": e.errors()
+                "details": e.errors(),
+                "session_id": session_id
             }
         )
     except Exception as e:
-        logger.error(f"Unexpected error starting analysis: {str(e)}")
+        structured_logger.error(
+            "Unexpected error starting analysis",
+            context=request_context,
+            exception=e
+        )
+        
+        # Record failed API call
+        monitoring_system.record_operation_metrics(
+            "run_analysis",
+            "api",
+            0,
+            False
+        )
+        
         raise HTTPException(
             status_code=500,
             detail={
                 "error": "Internal server error",
                 "message": "Failed to start analysis",
-                "details": str(e)
+                "details": str(e),
+                "session_id": session_id
             }
         )
 
@@ -265,6 +403,157 @@ async def health_check():
         )
 
 
+@app.get("/monitoring/health")
+async def detailed_health_check():
+    """
+    Comprehensive health check with system monitoring.
+    """
+    try:
+        with structured_logger.operation_context("detailed_health_check", ComponentType.API) as (context, metrics):
+            # Run comprehensive health checks
+            health_results = await monitoring_system.run_health_checks()
+            
+            # Get system metrics
+            system_metrics = await monitoring_system.get_system_metrics()
+            
+            # Determine overall status
+            overall_status = HealthStatus.HEALTHY
+            for result in health_results.values():
+                if result.status == HealthStatus.UNHEALTHY:
+                    overall_status = HealthStatus.UNHEALTHY
+                    break
+                elif result.status == HealthStatus.DEGRADED and overall_status == HealthStatus.HEALTHY:
+                    overall_status = HealthStatus.DEGRADED
+            
+            response = {
+                "status": overall_status.value,
+                "timestamp": datetime.now().isoformat(),
+                "version": "1.0.0",
+                "health_checks": {name: result.to_dict() for name, result in health_results.items()},
+                "system_metrics": system_metrics.to_dict(),
+                "uptime_seconds": (datetime.utcnow() - monitoring_system.start_time).total_seconds()
+            }
+            
+            # Record monitoring metrics
+            monitoring_system.record_operation_metrics(
+                "detailed_health_check",
+                "api",
+                metrics.duration_ms or 0,
+                True
+            )
+            
+            return JSONResponse(content=response)
+    
+    except Exception as e:
+        structured_logger.error(
+            "Detailed health check failed",
+            context=LogContext(component=ComponentType.API, operation="detailed_health_check"),
+            exception=e
+        )
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "unhealthy",
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e)
+            }
+        )
+
+
+@app.get("/monitoring/metrics")
+async def get_metrics():
+    """
+    Get operation and performance metrics.
+    """
+    try:
+        with structured_logger.operation_context("get_metrics", ComponentType.API) as (context, metrics):
+            operation_metrics = monitoring_system.get_operation_metrics()
+            
+            monitoring_system.record_operation_metrics(
+                "get_metrics",
+                "api", 
+                metrics.duration_ms or 0,
+                True
+            )
+            
+            return JSONResponse(content=operation_metrics)
+    
+    except Exception as e:
+        structured_logger.error(
+            "Failed to get metrics",
+            context=LogContext(component=ComponentType.API, operation="get_metrics"),
+            exception=e
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+@app.get("/monitoring/summary")
+async def get_monitoring_summary():
+    """
+    Get comprehensive monitoring summary including health, metrics, and alerts.
+    """
+    try:
+        with structured_logger.operation_context("get_monitoring_summary", ComponentType.API) as (context, metrics):
+            summary = await monitoring_system.get_monitoring_summary()
+            
+            monitoring_system.record_operation_metrics(
+                "get_monitoring_summary",
+                "api",
+                metrics.duration_ms or 0,
+                True
+            )
+            
+            return JSONResponse(content=summary)
+    
+    except Exception as e:
+        structured_logger.error(
+            "Failed to get monitoring summary",
+            context=LogContext(component=ComponentType.API, operation="get_monitoring_summary"),
+            exception=e
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
+@app.get("/monitoring/alerts")
+async def get_alerts():
+    """
+    Get recent alerts and notifications.
+    """
+    try:
+        with structured_logger.operation_context("get_alerts", ComponentType.API) as (context, metrics):
+            alerts = list(monitoring_system.alerts)
+            
+            monitoring_system.record_operation_metrics(
+                "get_alerts",
+                "api",
+                metrics.duration_ms or 0,
+                True
+            )
+            
+            return JSONResponse(content={
+                "timestamp": datetime.now().isoformat(),
+                "alerts": alerts,
+                "total_alerts": len(alerts)
+            })
+    
+    except Exception as e:
+        structured_logger.error(
+            "Failed to get alerts",
+            context=LogContext(component=ComponentType.API, operation="get_alerts"),
+            exception=e
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
+
+
 @app.get("/")
 async def root():
     """
@@ -275,5 +564,11 @@ async def root():
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health",
+        "monitoring": {
+            "detailed_health": "/monitoring/health",
+            "metrics": "/monitoring/metrics", 
+            "summary": "/monitoring/summary",
+            "alerts": "/monitoring/alerts"
+        },
         "timestamp": datetime.now().isoformat()
     }
