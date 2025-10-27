@@ -430,7 +430,7 @@ async def detailed_health_check():
                 "timestamp": datetime.now().isoformat(),
                 "version": "1.0.0",
                 "health_checks": {name: result.to_dict() for name, result in health_results.items()},
-                "system_metrics": system_metrics.to_dict(),
+                "system_metrics": system_metrics,  # system_metrics is already a dict
                 "uptime_seconds": (datetime.utcnow() - monitoring_system.start_time).total_seconds()
             }
             
