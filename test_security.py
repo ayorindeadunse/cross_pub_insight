@@ -39,13 +39,13 @@ def test_security_features():
     # Test with TestClient
     client = TestClient(app)
     
-    print("✅ Testing Health Check...")
+    print("Testing Health Check...")
     health_response = client.get("/health")
     assert health_response.status_code == 200
     health_data = health_response.json()
     print(f"   Health Status: {health_data['status']}")
     
-    print("✅ Testing Valid Request...")
+    print("Testing Valid Request...")
     valid_payload = {
         "primary_repo": "https://github.com/test/valid-repo",
         "comparison_repos": ["https://github.com/test/comparison"],
@@ -59,7 +59,7 @@ def test_security_features():
     print(f"   Session ID: {data['session_id']}")
     print(f"   Status: {data['status']}")
     
-    print("✅ Testing Input Validation - Invalid URL...")
+    print("Testing Input Validation - Invalid URL...")
     invalid_payload = {
         "primary_repo": "not-a-valid-url",
         "comparison_repos": ["https://github.com/test/comparison"],
@@ -71,7 +71,7 @@ def test_security_features():
     assert response.status_code == 422  # Validation error
     print("   ✓ Invalid URL rejected as expected")
     
-    print("✅ Testing Input Validation - Empty repositories...")
+    print("Testing Input Validation - Empty repositories...")
     empty_repos_payload = {
         "primary_repo": "https://github.com/test/valid-repo",
         "comparison_repos": [],
@@ -81,9 +81,9 @@ def test_security_features():
     
     response = client.post("/test-analysis/", json=empty_repos_payload)
     assert response.status_code == 422  # Validation error  
-    print("   ✓ Empty comparison repos rejected as expected")
+    print("✓ Empty comparison repos rejected as expected")
     
-    print("✅ Testing Rate Limiting...")
+    print("Testing Rate Limiting...")
     # Make multiple requests quickly to trigger rate limiting
     for i in range(7):  # More than our limit of 5
         try:
@@ -98,9 +98,9 @@ def test_security_features():
             else:
                 raise
     else:
-        print("   ⚠️ Rate limiting not triggered (may need more requests)")
+        print("Rate limiting not triggered (may need more requests)")
     
-    print("🎉 All security tests passed!")
+    print("All security tests passed!")
 
 if __name__ == "__main__":
     test_security_features()
