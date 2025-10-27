@@ -1,7 +1,7 @@
 """
 Enhanced Pydantic models for API validation and security.
 """
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, field_validator, HttpUrl
 from typing import List, Optional
 import re
 from urllib.parse import urlparse
@@ -11,7 +11,8 @@ class GitHubRepoUrl(BaseModel):
     """Validated GitHub repository URL"""
     url: str = Field(..., description="GitHub repository URL")
     
-    @validator('url')
+    @field_validator('url')
+    @classmethod
     def validate_github_url(cls, v):
         """Validate that the URL is a legitimate GitHub repository URL"""
         if not isinstance(v, str):
@@ -57,10 +58,9 @@ class RepoRequest(BaseModel):
     )
     
     comparison_repos: List[str] = Field(
-        ..., 
+        default=[],
         description="List of comparison repository URLs or paths",
-        min_items=1,
-        max_items=10  # Reasonable limit to prevent abuse
+        max_length=10  # Reasonable limit to prevent abuse
     )
     
     user_query: Optional[str] = Field(
@@ -74,12 +74,14 @@ class RepoRequest(BaseModel):
         description="Whether to use human-in-the-loop intervention"
     )
     
-    @validator('primary_repo')
+    @field_validator('primary_repo')
+    @classmethod
     def validate_primary_repo(cls, v):
         """Validate primary repository URL/path"""
         return GitHubRepoUrl(url=v).url
     
-    @validator('comparison_repos')
+    @field_validator('comparison_repos')
+    @classmethod
     def validate_comparison_repos(cls, v):
         """Validate comparison repository URLs/paths"""
         validated_repos = []
@@ -87,7 +89,8 @@ class RepoRequest(BaseModel):
             validated_repos.append(GitHubRepoUrl(url=repo).url)
         return validated_repos
     
-    @validator('user_query')
+    @field_validator('user_query')
+    @classmethod
     def validate_user_query(cls, v):
         """Sanitize and validate user query"""
         if not v:

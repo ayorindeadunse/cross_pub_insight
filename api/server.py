@@ -153,7 +153,7 @@ async def run_analysis(request: RepoRequest, background_tasks: BackgroundTasks):
             "status": "processing", 
             "results": [],
             "timestamp": datetime.now().isoformat(),
-            "request": request.dict()
+            "request": request.model_dump()
         }
         
         background_tasks.add_task(
