@@ -1,5 +1,6 @@
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 from uuid import uuid4
 from typing import List, Optional, Dict
@@ -36,6 +37,15 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+# Add CORS middleware for Blazor frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5000", "https://localhost:5001", "http://127.0.0.1:5000", "https://127.0.0.1:5001"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Setup security middleware
@@ -373,6 +383,7 @@ async def get_results(session_id: str):
 
 
 @app.get("/health", response_model=HealthCheckResponse)
+@app.get("/health/", response_model=HealthCheckResponse)
 async def health_check():
     """
     Health check endpoint with dependency status.
