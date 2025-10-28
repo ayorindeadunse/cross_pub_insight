@@ -495,6 +495,40 @@ async def get_metrics():
     try:
         with structured_logger.operation_context("get_metrics", ComponentType.API) as (context, metrics):
             operation_metrics = monitoring_system.get_operation_metrics()
+            system_metrics = await monitoring_system.get_system_metrics()
+            
+            # Transform operation metrics into organized categories
+            memory_usage = {}
+            operation_counts = {}
+            response_times = {}
+            error_rates = {}
+            
+            # Process operation metrics and categorize them
+            for key, metric_data in operation_metrics.items():
+                component = metric_data.get("component", "unknown")
+                operation = metric_data.get("operation_name", "unknown")
+                
+                # Operation counts
+                operation_counts[f"{component}_{operation}"] = metric_data.get("total_calls", 0)
+                operation_counts[f"{component}_{operation}_success"] = metric_data.get("successful_calls", 0)
+                operation_counts[f"{component}_{operation}_failed"] = metric_data.get("failed_calls", 0)
+                
+                # Response times
+                response_times[f"{component}_{operation}_avg"] = metric_data.get("avg_duration_ms", 0.0)
+                response_times[f"{component}_{operation}_min"] = metric_data.get("min_duration_ms", 0.0)
+                response_times[f"{component}_{operation}_max"] = metric_data.get("max_duration_ms", 0.0)
+                
+                # Error rates
+                success_rate = metric_data.get("success_rate_percent", 100.0)
+                error_rates[f"{component}_{operation}"] = round(100.0 - success_rate, 2)
+            
+            # Add system memory metrics
+            memory_usage.update({
+                "gc_objects": system_metrics.get("object_count", 0),
+                "uptime_seconds": system_metrics.get("uptime_seconds", 0),
+                "health_checks": system_metrics.get("health_checks_count", 0),
+                "tracked_operations": system_metrics.get("operation_metrics_count", 0)
+            })
             
             monitoring_system.record_operation_metrics(
                 "get_metrics",
@@ -506,10 +540,10 @@ async def get_metrics():
             # Return properly structured response
             return MonitoringMetricsResponse(
                 timestamp=datetime.now().isoformat(),
-                memory_usage=operation_metrics.get("memory_usage", {}),
-                operation_counts=operation_metrics.get("operation_counts", {}),
-                response_times=operation_metrics.get("response_times", {}),
-                error_rates=operation_metrics.get("error_rates", {})
+                memory_usage=memory_usage,
+                operation_counts=operation_counts,
+                response_times=response_times,
+                error_rates=error_rates
             )
     
     except Exception as e:
