@@ -104,13 +104,34 @@ class ResilientLLMClient:
             
             # Simulate LLM call (replace with actual client call)
             if hasattr(client, 'generate'):
-                response = await client.generate(
-                    prompt=full_prompt,
-                    max_tokens=max_tokens,
-                    temperature=temperature
-                )
+                # Check if the generate method is async
+                import asyncio
+                import inspect
+                
+                if inspect.iscoroutinefunction(client.generate):
+                    response = await client.generate(
+                        prompt=full_prompt,
+                        max_tokens=max_tokens,
+                        temperature=temperature
+                    )
+                else:
+                    # Synchronous client - run in thread to avoid blocking
+                    response = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: client.generate(
+                            prompt=full_prompt,
+                            max_tokens=max_tokens,
+                            temperature=temperature
+                        )
+                    )
             elif hasattr(client, '__call__'):
-                response = await client(full_prompt)
+                if inspect.iscoroutinefunction(client.__call__):
+                    response = await client(full_prompt)
+                else:
+                    response = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: client(full_prompt)
+                    )
             else:
                 # Fallback for different client interfaces
                 response = str(client)
