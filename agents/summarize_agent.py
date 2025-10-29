@@ -11,12 +11,12 @@ from jinja2 import Template
 logger = get_logger(__name__)
 
 class SummarizeAgent:
-    def __init__(self, llm_type: str = "local", model_name: Optional[str]= None, config_file: str = "config/config.yaml"):
+    def __init__(self, llm_type: str = "openai", model_name: Optional[str]= None, config_file: str = "config/config.yaml"):
         """
         Initializes the SummarizeAgent.
         
         Args:
-            llm_type (str): Type of LLM backend ("local", "openai", etc.)
+            llm_type (str): Type of LLM backend ("openai", "gemini", "anthropic", "local", etc.)
             model_name (Optional[str]): Specific model to use; falls back to config default if None.
             config_file (str): Path to the configuration YAML file.
         """
@@ -147,7 +147,7 @@ class SummarizeAgent:
         return state
     
 def run(state: dict) -> dict:
-    agent = SummarizeAgent(llm_type="local")
+    agent = SummarizeAgent(llm_type="openai")
     return agent.run(state)
 
 

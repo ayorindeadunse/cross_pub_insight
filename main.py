@@ -25,7 +25,7 @@ def run_orchestration(repo_path, comparison_repo_path,  user_query="", use_hitl=
     }
 
     # Analyze comparison repo
-    comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
+    comparison_analyzer = ProjectAnalyzerAgent(llm_type="openai")
     comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
 
     # Aggregate trends for comparison repo

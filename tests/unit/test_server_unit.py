@@ -55,7 +55,7 @@ async def test_run_analysis_mocked(
     assert mock_clone_if_remote.call_count == 2
     
     # ProjectAnalyzerAgent should be instantiated for comparison repo analysis
-    mock_analyzer_class.assert_called_with(llm_type="local")
+    mock_analyzer_class.assert_called_with(llm_type="openai")
     mock_analyzer_instance.analyze_project.assert_called_once()
     
     # trend aggregator should be called

@@ -14,7 +14,7 @@ from tools.semantic_trend_detector import SemanticTrendDetector
 logger = get_logger(__name__)
 
 class LLMTrendInsightAgent:
-    def __init__(self, llm_type="local", model_name=None, config_file="config/config.yaml"):
+    def __init__(self, llm_type="openai", model_name=None, config_file="config/config.yaml"):
         self.config = load_config(config_file)
         self.llm = get_llm_client(
             llm_type=llm_type,

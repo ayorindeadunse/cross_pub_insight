@@ -11,7 +11,7 @@ from jinja2 import Template
 logger = get_logger(__name__)
 
 class AggregateQueryAgent:
-    def __init__(self, llm_type: str = "local", model_name: Optional[str] = None, config_file: str = "config/config.yaml"):
+    def __init__(self, llm_type: str = "openai", model_name: Optional[str] = None, config_file: str = "config/config.yaml"):
         self.config = load_config(config_file)
         self.llm = get_llm_client(
             llm_type=llm_type,

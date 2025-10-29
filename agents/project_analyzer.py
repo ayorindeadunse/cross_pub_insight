@@ -17,12 +17,12 @@ logger = get_logger(__name__)
 
 
 class ProjectAnalyzerAgent:
-    def __init__(self, llm_type: str = "local", model_name: Optional[str] = None, config_file: str = "config/config.yaml"):
+    def __init__(self, llm_type: str = "openai", model_name: Optional[str] = None, config_file: str = "config/config.yaml"):
         """
         Initializes the ProjectAnalyzerAgent with resilience patterns.
 
         Args:
-            llm_type (str): Type of LLM backend ("local", "openai", etc.)
+            llm_type (str): Type of LLM backend ("openai", "gemini", "anthropic", "local", etc.)
             model_name (Optional[str]): Specific model to use; falls back to config default if None.
             config_file (str): Path to the configuration YAML file.
         """

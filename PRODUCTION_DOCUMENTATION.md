@@ -17,7 +17,7 @@ The Cross Publication Insight Assistant (CPIA) is a production-ready multi-agent
 
 ### Key Capabilities
 - **Multi-Repository Analysis**: Analyze and compare multiple GitHub repositories
-- **AI-Powered Insights**: Local LLM integration for intelligent code analysis
+- **AI-Powered Insights**: OpenAI GPT integration for intelligent code analysis
 - **Production Resilience**: Comprehensive retry logic, circuit breakers, and fallback mechanisms
 - **Real-time Monitoring**: Health checks, metrics collection, and alerting
 - **Enterprise Security**: Rate limiting, input validation, and audit logging
@@ -29,7 +29,7 @@ The Cross Publication Insight Assistant (CPIA) is a production-ready multi-agent
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   FastAPI       │    │   Multi-Agent   │    │   LLM Client    │
-│   Server        │───▶│   Orchestrator  │───▶│   (Phi-2)       │
+│   Server        │───▶│   Orchestrator  │───▶│   (OpenAI)      │
 │                 │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
@@ -244,8 +244,8 @@ Automated alerts are generated for:
 
 4. **Download LLM Model**
    ```bash
-   # Place Phi-2 model in models/ directory
-   # Ensure models/phi-2.Q6_K.gguf is present
+   # Configure OpenAI API key in environment
+   # Ensure OPENAI_API_KEY is set in production
    ```
 
 5. **Start Server**
@@ -281,7 +281,7 @@ CPIA_RATE_LIMIT_REQUESTS=100
 CPIA_RATE_LIMIT_WINDOW=3600
 
 # Model Configuration
-CPIA_MODEL_PATH=/app/models/phi-2.Q6_K.gguf
+OPENAI_API_KEY=your-production-api-key-here
 CPIA_LLM_TYPE=local
 
 # Monitoring Configuration
