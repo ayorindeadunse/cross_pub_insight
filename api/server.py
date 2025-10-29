@@ -91,7 +91,7 @@ app.add_middleware(
 )
 
 # Setup security middleware - Relaxed rate limits for development/testing
-setup_security_middleware(app, rate_limit_requests=10000, rate_limit_window=3600)
+setup_security_middleware(app, rate_limit_requests=100, rate_limit_window=3600)
 
 # Remove the old RepoRequest class as it's now in models.py
 
@@ -124,7 +124,7 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
         comparison_target_states = []
         for comparison_repo_path in comparison_repo_paths:
             try:
-                comparison_analyzer = ProjectAnalyzerAgent(llm_type="local")
+                comparison_analyzer = ProjectAnalyzerAgent(llm_type="openai")
                 comparison_analysis = comparison_analyzer.analyze_project(comparison_repo_path)
                 trend_input = {
                     "repo_path": comparison_repo_path,

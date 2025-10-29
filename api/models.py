@@ -70,7 +70,7 @@ class RepoRequest(BaseModel):
     )
     
     use_hitl: Optional[bool] = Field(
-        default=True,
+        default=False,
         description="Whether to use human-in-the-loop intervention"
     )
     

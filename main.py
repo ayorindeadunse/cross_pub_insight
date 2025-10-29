@@ -68,16 +68,16 @@ def main():
         args = sys.argv[1:]
 
         if not args or len(args) < 2:
-            print("Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2...] [--query 'your question'] [--no-hitl]")
+            print("Usage: python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2...] [--query 'your question'] [--hitl]")
             sys.exit(1)
         
-        use_hitl = True
+        use_hitl = False
         user_query = ""
 
         # Parse CLI flags
-        if "--no-hitl" in args:
-            use_hitl = False
-            args.remove("--no-hitl")
+        if "--hitl" in args:
+            use_hitl = True
+            args.remove("--hitl")
         
         if "--query" in args:
             idx = args.index("--query")

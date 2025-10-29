@@ -56,5 +56,5 @@ embeddings:
   score_threshold: 0.4
 
 hitl:
-  enabled: true 
+  enabled: false 
   step: "pre-summary"
