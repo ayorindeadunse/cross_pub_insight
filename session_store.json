@@ -77,5 +77,31 @@
       }
     ],
     "timestamp": "2025-10-29T22:53:44.884062"
+  },
+  "4322bd25-86f4-4a6f-9358-e12633255b82": {
+    "status": "completed",
+    "results": [
+      {
+        "comparison_repo": null,
+        "analysis_result": "Primary analysis failed: 'NoneType' object has no attribute 'get'",
+        "fact_check_result": "Skipped due to analysis failure",
+        "aggregate_query_result": "Skipped due to analysis failure",
+        "final_summary": "Primary analysis could not be completed due to errors"
+      }
+    ],
+    "timestamp": "2025-10-29T23:03:15.200320"
+  },
+  "8ef2d2be-efb2-4708-84f2-faa448905e81": {
+    "status": "completed",
+    "results": [
+      {
+        "comparison_repo": null,
+        "analysis_result": "Primary analysis failed: 'NoneType' object has no attribute 'get'",
+        "fact_check_result": "Skipped due to analysis failure",
+        "aggregate_query_result": "Skipped due to analysis failure",
+        "final_summary": "Primary analysis could not be completed due to errors"
+      }
+    ],
+    "timestamp": "2025-10-29T23:06:11.672994"
   }
 }

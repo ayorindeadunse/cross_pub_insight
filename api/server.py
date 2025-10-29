@@ -159,6 +159,12 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
                         "user_query": user_query.strip()
                     }
                     result = orchestrator.run(initial_state, config=config_override)
+                    
+                    # Handle case where orchestrator returns None or non-dict
+                    if result is None or not isinstance(result, dict):
+                        logger.warning(f"Orchestrator returned unexpected result type: {type(result)}")
+                        result = {}
+                    
                     results.append({
                         "comparison_repo": None,
                         "analysis_result": result.get("analysis_result", "No analysis result found"),
@@ -185,6 +191,12 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
                             "user_query": user_query.strip()
                         }
                         result = orchestrator.run(initial_state, config=config_override)
+                        
+                        # Handle case where orchestrator returns None or non-dict
+                        if result is None or not isinstance(result, dict):
+                            logger.warning(f"Orchestrator returned unexpected result type for comparison: {type(result)}")
+                            result = {}
+                        
                         results.append({
                             "comparison_repo": comparison_target["repo_path"],
                             "analysis_result": result.get("analysis_result", "No analysis result found"),

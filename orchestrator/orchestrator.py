@@ -8,7 +8,10 @@ from agents.summarize_agent import run as summarize_project
 from agents.aggregate_query_agent import run as aggregate_query_run
 
 from utils.config_loader import load_config
+from utils.logger import get_logger
 from tools.hitl_intervention import review_before_summary
+
+logger = get_logger(__name__)
 
 class CrossPublicationInsightOrchestrator:
     def __init__(self, user_query: str = ""):
@@ -40,7 +43,13 @@ class CrossPublicationInsightOrchestrator:
         self.executor = self.graph.compile(checkpointer=self.memory)
     
     def run(self, input_data: dict, config: dict = None):
-        result = self.executor.invoke(input_data, config=config) if config else self.executor.invoke(input_data)
+        try:
+            result = self.executor.invoke(input_data, config=config) if config else self.executor.invoke(input_data)
+            logger.info(f"Orchestrator executor result: {type(result)}")
+            logger.debug(f"Orchestrator result keys: {result.keys() if isinstance(result, dict) else 'Not a dict'}")
+        except Exception as e:
+            logger.error(f"Orchestrator executor failed: {str(e)}")
+            return None
         
         # HITL before summarization
         cfg = load_config()
