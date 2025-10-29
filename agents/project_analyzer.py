@@ -3,15 +3,15 @@ os.environ["GGML_METAL_LOG_LEVEL"] = "0"
 
 import asyncio
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional
 
 from llm.client import get_llm_client
-from tools.repo_parser import parse_repository, format_repo_summary, condense_repo_summary
+from tools.repo_parser import parse_repository, condense_repo_summary
 from utils.logger import get_logger
 from utils.malformed_readme_detector import is_malformed_readme
 from utils.config_loader import load_config
 from utils.resilient_llm import resilient_llm_client
-from utils.resilience import with_retry, RetryStrategy
+from utils.resilience import with_retry
 
 logger = get_logger(__name__)
 

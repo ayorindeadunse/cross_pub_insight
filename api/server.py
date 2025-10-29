@@ -6,19 +6,17 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import ValidationError
 from uuid import uuid4
-from typing import List, Optional, Dict
-import asyncio
+from typing import Dict
 from datetime import datetime
 import traceback
 import json
 
 from utils.logger import get_logger
-from utils.structured_logger import get_structured_logger, LogContext, ComponentType, PerformanceMetrics
+from utils.structured_logger import get_structured_logger, LogContext, ComponentType
 from utils.simple_monitoring import get_monitoring_system, HealthStatus
 from orchestrator.orchestrator import CrossPublicationInsightOrchestrator
 from agents.project_analyzer import ProjectAnalyzerAgent
 from agents.trend_aggregator import run as aggregate_trends
-from tools.repo_parser import parse_repository, condense_repo_summary
 from utils.repo_utils import clone_if_remote
 
 # Import our enhanced models and security
