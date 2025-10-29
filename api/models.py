@@ -130,9 +130,13 @@ class AnalysisResult(BaseModel):
     
     session_id: str = Field(..., description="Session identifier")
     status: str = Field(..., description="Analysis status")
-    results: Optional[List[dict]] = Field(None, description="Analysis results if completed")
+    analysis_result: Optional[List[dict]] = Field(None, description="Analysis results if completed")
     error: Optional[str] = Field(None, description="Error message if failed")
     timestamp: Optional[str] = Field(None, description="Completion timestamp")
+    
+    class Config:
+        # Ensure the field is serialized as analysis_result in the JSON output
+        allow_population_by_field_name = True
 
 
 class HealthCheckResponse(BaseModel):

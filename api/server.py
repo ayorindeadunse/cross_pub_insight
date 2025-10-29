@@ -1,3 +1,6 @@
+import os
+os.environ["GGML_METAL_LOG_LEVEL"] = "0"
+
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +10,7 @@ from typing import List, Optional, Dict
 import asyncio
 from datetime import datetime
 import traceback
+import json
 
 from utils.logger import get_logger
 from utils.structured_logger import get_structured_logger, LogContext, ComponentType, PerformanceMetrics
@@ -30,6 +34,44 @@ monitoring_system = get_monitoring_system()
 
 session_store: Dict[str, Dict] = {}
 
+# Persistent storage file for session data
+SESSION_STORE_FILE = "session_store.json"
+
+def save_session_store():
+    """Save session store to file"""
+    try:
+        with open(SESSION_STORE_FILE, 'w') as f:
+            json.dump(session_store, f, indent=2)
+    except Exception as e:
+        logger.error(f"Failed to save session store: {e}")
+
+def load_session_store():
+    """Load session store from file"""
+    global session_store
+    try:
+        if os.path.exists(SESSION_STORE_FILE):
+            with open(SESSION_STORE_FILE, 'r') as f:
+                session_store = json.load(f)
+            logger.info(f"Loaded {len(session_store)} sessions from persistent storage")
+    except Exception as e:
+        logger.error(f"Failed to load session store: {e}")
+        session_store = {}
+
+def update_session_store(session_id: str, data: dict):
+    """Update session store and save to file"""
+    session_store[session_id] = data
+    save_session_store()
+
+def update_session_field(session_id: str, field: str, value):
+    """Update a specific field in session store and save to file"""
+    if session_id not in session_store:
+        session_store[session_id] = {}
+    session_store[session_id][field] = value
+    save_session_store()
+
+# Load existing session data on startup
+load_session_store()
+
 # Initialize FastAPI app with enhanced configuration
 app = FastAPI(
     title="Cross Publication Insight Assistant API",
@@ -48,8 +90,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Setup security middleware
-setup_security_middleware(app, rate_limit_requests=100, rate_limit_window=3600)
+# Setup security middleware - Relaxed rate limits for development/testing
+setup_security_middleware(app, rate_limit_requests=10000, rate_limit_window=3600)
 
 # Remove the old RepoRequest class as it's now in models.py
 
@@ -163,19 +205,19 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
                         })
 
             logger.info(f"Complete Analysis result: {results}")
-            session_store[session_id] = {
+            update_session_store(session_id, {
                 "status": "completed",
                 "results": results,
                 "timestamp": datetime.now().isoformat()
-            }
+            })
             
         except Exception as e:
             logger.error(f"Orchestration setup failed: {str(e)}")
-            session_store[session_id] = {
+            update_session_store(session_id, {
                 "status": "failed",
                 "error": f"Orchestration failed: {str(e)}",
                 "timestamp": datetime.now().isoformat()
-            }
+            })
     
     except Exception as e:
         logger.error(f"Unexpected error in orchestration: {str(e)}")
@@ -395,7 +437,7 @@ async def get_results(session_id: str):
         return AnalysisResult(
             session_id=session_id,
             status=session_data.get("status", "unknown"),
-            results=session_data.get("results"),
+            analysis_result=session_data.get("results"),
             error=session_data.get("error"),
             timestamp=session_data.get("timestamp", datetime.now().isoformat())
         )

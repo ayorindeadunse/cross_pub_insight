@@ -160,10 +160,11 @@ def setup_security_middleware(app, rate_limit_requests: int = 100, rate_limit_wi
     # Add middleware in reverse order (last added = first executed)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestSizeLimitMiddleware, max_size=10 * 1024 * 1024)
-    app.add_middleware(
-        RateLimitMiddleware, 
-        max_requests=rate_limit_requests, 
-        time_window=rate_limit_window
-    )
+    # Rate limiting temporarily disabled for development/testing
+    # app.add_middleware(
+    #     RateLimitMiddleware, 
+    #     max_requests=rate_limit_requests, 
+    #     time_window=rate_limit_window
+    # )
     
-    logger.info(f"Security middleware configured: {rate_limit_requests} req/{rate_limit_window}s")
+    logger.info(f"Security middleware configured: Rate limiting DISABLED for development")
