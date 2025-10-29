@@ -108,30 +108,59 @@ def run_orchestration(session_id, repo_path, comparison_repo_paths, user_query="
             orchestrator = CrossPublicationInsightOrchestrator(user_query=user_query)
 
             results = []
-            for comparison_target in comparison_target_states:
+            
+            # Handle case when no comparison repositories are provided
+            if not comparison_target_states:
+                logger.info(f"No comparison repositories provided, running primary analysis only for session {session_id}")
                 try:
                     initial_state = {
                         "repo_path": repo_path,
-                        "comparison_target": comparison_target,
+                        "comparison_target": None,  # No comparison target
                         "user_query": user_query.strip()
                     }
                     result = orchestrator.run(initial_state, config=config_override)
                     results.append({
-                        "comparison_repo": comparison_target["repo_path"],
+                        "comparison_repo": None,
                         "analysis_result": result.get("analysis_result", "No analysis result found"),
                         "fact_check_result": result.get("fact_check_result", "No fact check result found."),
                         "aggregate_query_result": result.get("aggregate_query_result", "No aggregate query generated."),
                         "final_summary": result.get("final_summary", "No summary generated.")
                     })
                 except Exception as e:
-                    logger.error(f"Orchestration failed for comparison {comparison_target['repo_path']}: {str(e)}")
+                    logger.error(f"Primary orchestration failed for session {session_id}: {str(e)}")
                     results.append({
-                        "comparison_repo": comparison_target["repo_path"],
-                        "analysis_result": f"Orchestration failed: {str(e)}",
+                        "comparison_repo": None,
+                        "analysis_result": f"Primary analysis failed: {str(e)}",
                         "fact_check_result": "Skipped due to analysis failure",
                         "aggregate_query_result": "Skipped due to analysis failure",
-                        "final_summary": "Analysis could not be completed due to errors"
+                        "final_summary": "Primary analysis could not be completed due to errors"
                     })
+            else:
+                # Run orchestration for each comparison repository
+                for comparison_target in comparison_target_states:
+                    try:
+                        initial_state = {
+                            "repo_path": repo_path,
+                            "comparison_target": comparison_target,
+                            "user_query": user_query.strip()
+                        }
+                        result = orchestrator.run(initial_state, config=config_override)
+                        results.append({
+                            "comparison_repo": comparison_target["repo_path"],
+                            "analysis_result": result.get("analysis_result", "No analysis result found"),
+                            "fact_check_result": result.get("fact_check_result", "No fact check result found."),
+                            "aggregate_query_result": result.get("aggregate_query_result", "No aggregate query generated."),
+                            "final_summary": result.get("final_summary", "No summary generated.")
+                        })
+                    except Exception as e:
+                        logger.error(f"Orchestration failed for comparison {comparison_target['repo_path']}: {str(e)}")
+                        results.append({
+                            "comparison_repo": comparison_target["repo_path"],
+                            "analysis_result": f"Orchestration failed: {str(e)}",
+                            "fact_check_result": "Skipped due to analysis failure",
+                            "aggregate_query_result": "Skipped due to analysis failure",
+                            "final_summary": "Analysis could not be completed due to errors"
+                        })
 
             logger.info(f"Complete Analysis result: {results}")
             session_store[session_id] = {

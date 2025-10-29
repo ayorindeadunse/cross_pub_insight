@@ -130,7 +130,7 @@ class ResilientLLMClient:
         base_delay=0.5,
         max_delay=10.0,
         retryable_exceptions=(ConnectionError, TimeoutError),
-        timeout=30.0
+        timeout=90.0  # Increased from 30.0 to 90.0 seconds for repository analysis
     )
     async def analyze_repository(self, repo_path: str, analysis_type: str = "general") -> str:
         """

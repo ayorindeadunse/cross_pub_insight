@@ -70,8 +70,8 @@ class ProjectAnalyzerAgent:
         max_attempts=2,
         base_delay=1.0,
         max_delay=10.0,
-        retryable_exceptions=(FileNotFoundError, OSError),
-        timeout=30.0
+        retryable_exceptions=(FileNotFoundError, OSError, TimeoutError, Exception),  # Added TimeoutError and Exception
+        timeout=86400.0  
     )
     def analyze_project(self, repo_path: str) -> str:
         """
