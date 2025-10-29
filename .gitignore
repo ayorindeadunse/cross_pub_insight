@@ -3,11 +3,31 @@ __pycache__/
 *.pyo
 *.pyd
 *.log
+
+# Environment files (protect API keys)
 .env
+.env.local
+.env.*.local
+
+# Python virtual environment
 .venv
+venv/
+
+# Output and logs
 output/
+server.log
+nohup.out
+
+# IDE files
 .idea/
 .vscode/
 .DS_Store
+
+# Model files (large local models)
 *.gguf
 *.bin
+models/*.gguf
+models/*.bin
+
+# Session storage (contains user data)
+session_store.json

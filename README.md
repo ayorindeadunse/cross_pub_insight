@@ -33,13 +33,41 @@ It supports deep repository parsing, LLM-based and semantic trend extraction, fa
 
 ## Quickstart
 
-### 1. Install dependencies
-```bash
-pip install -r requirements.txt
+### 1. Configure LLM API (Required)
+Choose one of the supported LLM providers:
 
+**Option 1: OpenAI (Recommended)**
+```bash
+# Get API key at: https://platform.openai.com/api-keys
+cp .env.example .env
+echo "OPENAI_API_KEY=your-key-here" >> .env
 ```
 
-## Run the Agent
+**Option 2: Google Gemini (Free Tier)**
+```bash
+# Get API key at: https://aistudio.google.com/app/apikey
+cp .env.example .env  
+echo "GEMINI_API_KEY=your-key-here" >> .env
+```
+
+**Option 3: Anthropic Claude**
+```bash
+# Get API key at: https://console.anthropic.com/
+cp .env.example .env
+echo "ANTHROPIC_API_KEY=your-key-here" >> .env
+```
+
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Start the API Server
+```bash
+python3 -m uvicorn api.server:app --host 127.0.0.1 --port 8000
+```
+
+## CLI Usage (Legacy)
 python3 main.py <primary_repo> <comparison_repo1> [comparison_repo2 ...] --query "What % use LangGraph?"
 
 ## Options

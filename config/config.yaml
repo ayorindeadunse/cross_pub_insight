@@ -16,10 +16,10 @@ rag_summarizer:
 
 #Model / LLM Configuration
 llm:
-  model_name: "models/phi-2.Q6_K.gguf"
-  context_window: 36000
+  model_name: "gpt-4o-mini"  # Cost-effective, high-quality model
+  context_window: 128000     # 128k tokens
   temperature: 0.2
-  type: "local"
+  type: "openai"             # Switch from "local" to "openai"
 
 # Repo Parser Configuration
 repo_parser:
