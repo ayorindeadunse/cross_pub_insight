@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ENVIRONMENT=development
+    volumes:
+      - ./session_store.json:/app/session_store.json
+      - ./server.log:/app/server.log
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Future: Add UI service when Blazor containerization is ready
+  # ui:
+  #   build: ./ui
+  #   ports:
+  #     - "5000:5000"
+  #   depends_on:
+  #     - api
+  #   environment:
+  #     - API_BASE_URL=http://api:8000
+  #   restart: unless-stopped
+
+networks:
+  default:
+    name: cross_pub_insight_network

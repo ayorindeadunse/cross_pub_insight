@@ -79,8 +79,20 @@ pip install -r requirements.txt
 ```
 
 ### 3. Start the API Server
+
+#### Option A: Direct Python
 ```bash
 python3 -m uvicorn api.server:app --host 127.0.0.1 --port 8000
+```
+
+#### Option B: Docker (Recommended for Production)
+```bash
+# Development
+docker-compose up -d
+
+# Production
+docker build -f Dockerfile.production -t cross-pub-insight:prod .
+docker run -d -p 8000:8000 -e OPENAI_API_KEY=your_key cross-pub-insight:prod
 ```
 
 ### 4. Access the Application
@@ -119,6 +131,57 @@ python test_endpoints.py
 python test_security.py
 python test_resilience.py
 ```
+
+---
+
+## 🐳 Docker Deployment
+
+### Development with Docker Compose
+```bash
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+### Production Docker Deployment
+```bash
+# Build production image
+docker build -f Dockerfile.production -t cross-pub-insight:prod .
+
+# Run production container
+docker run -d \
+  --name cross-pub-insight-prod \
+  -p 8000:8000 \
+  -e OPENAI_API_KEY=your_api_key \
+  -v $(pwd)/session_store.json:/app/session_store.json \
+  --restart unless-stopped \
+  cross-pub-insight:prod
+
+# Check health
+curl http://localhost:8000/health
+```
+
+### Container Management
+```bash
+# Check container status
+docker ps
+docker inspect --format='{{.State.Health.Status}}' cross-pub-insight-prod
+
+# View container logs
+docker logs cross-pub-insight-prod
+
+# Access container shell
+docker exec -it cross-pub-insight-prod /bin/bash
+```
+
+See [Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md) for detailed instructions.
+
+---
 
 ## CLI Usage (Legacy)
 ```bash
